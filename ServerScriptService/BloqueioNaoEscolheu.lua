@@ -1,5 +1,7 @@
 local Players = game:GetService("Players")
 
+print("TESTE")
+
 while true do
 	task.wait(5)
 
