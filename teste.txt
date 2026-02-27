@@ -1,1 +1,4 @@
 arquivo teste
+Versão Unificada e Blindada (Magnitude + Servidor CanCollide)
+Ciclo de Jogo: Infinito (Reseta com vencedor ou morte total).
+Segurança: Bloqueio físico e lógico de jogadores que renascem.
