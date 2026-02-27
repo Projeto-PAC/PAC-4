@@ -8,7 +8,7 @@ local painel = gui:WaitForChild("Painel")
 local labelSerie = gui:WaitForChild("SerieAtual")
 local botaoSair = painel:WaitForChild("BotaoSair")
 
--- Referência física das portas
+-- Referência física das portas (Pasta SistemaArena no Workspace)
 local pastaArena = workspace:WaitForChild("SistemaArena")
 local portas = {
 	pastaArena:WaitForChild("Porta1"), 
@@ -17,11 +17,11 @@ local portas = {
 }
 
 -- ==========================================
--- FUNÇÃO DE CORES E ESTADOS (O CORAÇÃO DO CICLO)
+-- FUNÇÃO DE CORES E ESTADOS (VISUAL E FÍSICO)
 -- ==========================================
 local function atualizarPortas(estado)
 	if estado == "VERDE" then
-		-- ESTADO: Arena Livre
+		-- ESTADO: Arena Livre para Entrada
 		for _, porta in pairs(portas) do
 			porta.CanCollide = false
 			porta.Transparency = 0.7
@@ -32,14 +32,14 @@ local function atualizarPortas(estado)
 		painel.Visible = true
 		botaoSair.Visible = true
 
-		-- ESCONDE BOTÕES DE SÉRIE (Limpeza para o próximo ciclo)
+		-- Esconde botões de série para o próximo ciclo
 		painel.S6.Visible = false
 		painel.S7.Visible = false
 		painel.S8.Visible = false
 		painel.S9.Visible = false
 
 	elseif estado == "LARANJA" then
-		-- ESTADO: Jogador entrou, aguardando início
+		-- ESTADO: Jogador entrou, aguardando início (Pré-jogo)
 		for _, porta in pairs(portas) do
 			porta.CanCollide = true 
 			porta.Transparency = 0.3
@@ -50,7 +50,7 @@ local function atualizarPortas(estado)
 		botaoSair.Visible = false
 
 	elseif estado == "VERMELHO" then
-		-- ESTADO: Partida em andamento (GO!)
+		-- ESTADO: Partida em andamento (Bloqueio Total)
 		for _, porta in pairs(portas) do
 			porta.CanCollide = true
 			porta.Transparency = 0
@@ -58,6 +58,7 @@ local function atualizarPortas(estado)
 		end
 		labelSerie.Text = "Valendo"
 		labelSerie.TextColor3 = Color3.fromRGB(0, 255, 127)
+		painel.Visible = false -- Esconde o painel durante o jogo
 	end
 end
 
@@ -67,7 +68,7 @@ local function selecionarSerie(valor)
 end
 
 -- ==========================================
--- ESCUTA OS COMANDOS DO GAME MANAGER
+-- ESCUTA OS COMANDOS DO SERVIDOR (GAME MANAGER)
 -- ==========================================
 eventoIniciar.OnClientEvent:Connect(function(comando)
 	print("Recebido do Servidor: " .. tostring(comando))
@@ -76,25 +77,22 @@ eventoIniciar.OnClientEvent:Connect(function(comando)
 		atualizarPortas("VERDE")
 
 	elseif comando == "SENSOR_ATIVADO" or comando == "PORTA_LARANJA" or comando == "PRENDER_INDIVIDUAL" then
-		-- Quando pisa no sensor ou escolhe manual
+		-- Registro individual ao tocar no sensor
 		selecionarSerie(6)
 
 	elseif comando == "FECHAR_ARENA_VERMELHO" or comando == "TRANCAR_GERAL" then
-		-- Quando o servidor inicia a pergunta
+		-- Início da competição
 		atualizarPortas("VERMELHO")
 	end
 end)
 
 -- ==========================================
--- CONFIGURAÇÃO DOS BOTÕES
+-- CONFIGURAÇÃO DOS BOTÕES DA UI
 -- ==========================================
 painel.S6.MouseButton1Click:Connect(function() selecionarSerie(6) end)
 painel.S7.MouseButton1Click:Connect(function() selecionarSerie(7) end)
 painel.S8.MouseButton1Click:Connect(function() selecionarSerie(8) end)
 painel.S9.MouseButton1Click:Connect(function() selecionarSerie(9) end)
 
--- Garante que se o player morrer, a UI reseta para o estado inicial
-player.CharacterAdded:Connect(function()
-	task.wait(0.5)
-	atualizarPortas("VERDE")
-end)
+-- ✅ NOTA: A função CharacterAdded foi removida.
+-- Isso impede que o jogador abra a porta localmente ao renascer na arquibancada.
