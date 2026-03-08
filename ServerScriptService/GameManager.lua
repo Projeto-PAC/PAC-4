@@ -73,6 +73,16 @@ local CoresAleatorias = {
 -- FUNÇÕES AUXILIARES
 -- ==========================================
 
+local function aplicarEstilo()
+	local uiStrokeT = timerLabel:FindFirstChild("UIStroke") or Instance.new("UIStroke", timerLabel)
+	timerLabel.Font = Enum.Font.FredokaOne; timerLabel.TextColor3 = Color3.fromRGB(240, 240, 240) 
+	uiStrokeT.Color = Color3.fromRGB(100, 150, 255); uiStrokeT.Thickness = 3 
+	local uiStrokeQ = questionLabel:FindFirstChild("UIStroke") or Instance.new("UIStroke", questionLabel)
+	questionLabel.Font = Enum.Font.FredokaOne; questionLabel.TextColor3 = Color3.fromRGB(255, 255, 255) 
+	uiStrokeQ.Color = Color3.fromRGB(120, 200, 150); uiStrokeQ.Thickness = 3 
+end
+aplicarEstilo()
+
 local function getJogadoresAtivos()
 
 	local ativos = {}
