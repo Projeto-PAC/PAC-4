@@ -25,7 +25,7 @@ local timerLabel = timerBoard.SurfaceGui.TextLabel
 local tickSound = timerBoard:FindFirstChild("TickSound")
 local buzzerSound = timerBoard:FindFirstChild("BuzzerSound")
 local start = timerBoard:FindFirstChild("Start")
-local apalusos4S = timerBoard:FindFirstChild("Apalusos4S")
+local aplausos4S = timerBoard:FindFirstChild("Aplausos4S")
 local narracaoGalvaoBueno45S = timerBoard:FindFirstChild("NarracaoGalvaoBueno45S")
 local narracaoGalvaoBueno30S = timerBoard:FindFirstChild("NarracaoGalvaoBueno30S")
 local narracaoGalvaoBueno20S = timerBoard:FindFirstChild("NarracaoGalvaoBueno20S")
@@ -263,7 +263,7 @@ while true do
 
 		rodadaAtiva = false
 		if buzzerSound then buzzerSound:Play() end
-		if apalusos4S then apalusos4S:Play() end
+		if aplausos4S then aplausos4S:Play() end
 
 		for i = 1, 36 do
 			local b = answersFolder:FindFirstChild("Answer"..i)
