@@ -42,9 +42,9 @@ local function setupPlayerData(player)
 		s8.Value = data.Serie8 or 0
 		s9.Value = data.Serie9 or 0
 		camp.Value = data.Comp or 0
-		print("✅ Dados de " .. player.Name .. " carregados!")
+		print(" Dados de " .. player.Name .. " carregados!")
 	else
-		warn("🆕 Novo jogador ou erro de rede para: " .. player.Name)
+		warn(" Novo jogador ou erro de rede para: " .. player.Name)
 	end
 end
 
@@ -67,9 +67,9 @@ local function savePlayerData(player)
 		end)
 
 		if success then
-			print("💾 Dados de " .. player.Name .. " salvos com sucesso!")
+			print(" Dados de " .. player.Name .. " salvos com sucesso!")
 		else
-			warn("❌ Erro ao salvar dados de " .. player.Name .. ": " .. err)
+			warn(" Erro ao salvar dados de " .. player.Name .. ": " .. err)
 		end
 	end
 end
