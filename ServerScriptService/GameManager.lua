@@ -239,22 +239,35 @@ local function rodarCicloCompeticao()
 			porta.Color = Color3.fromRGB(255,0,0)
 		end
 
+		local endgame = false
 		local status = "CONTINUA"
 
-		while true do
+		while status == "CONTINUA" do
 
-			for _, dificuldade in ipairs({"Facil","Medio","Dificil"}) do
+			if not endgame then
 
-				for serie = 6,9 do
+				for _, dificuldade in ipairs({"Facil","Medio","Dificil"}) do
+					for serie = 6,9 do
 
-					local status = executarRound(serie,dificuldade)
+						status = executarRound(serie,dificuldade)
 
-					if status == "FIM" or status == "MORTE_TOTAL" then
-						return
+						if status ~= "CONTINUA" then
+							break
+						end
+
+						if serie == 9 and dificuldade == "Dificil" then
+							endgame = true
+						end
 					end
 
+					if status ~= "CONTINUA" then
+						break
+					end
 				end
 
+			else
+				-- ENDGAME: sempre 9º ano difícil
+				status = executarRound(9,"Dificil")
 			end
 
 		end
@@ -262,14 +275,20 @@ local function rodarCicloCompeticao()
 		local sobreviventes = getJogadoresAtivos()
 
 		if #sobreviventes == 1 then
-
 			local vencedor = sobreviventes[1]
-
 			questionLabel.Text = "🏆 VENCEDOR: "..vencedor.Name
-
 		else
-
 			questionLabel.Text = "💀 NINGUÉM SOBREVIVEU"
+		end
+		
+		-- atualiza o status dos jogadores
+		for _,p in pairs(players:GetPlayers()) do
+
+			local stats = p:FindFirstChild("PlayerStats")
+
+			if stats then
+				stats.JogoIniciado.Value = false
+			end
 
 		end
 
