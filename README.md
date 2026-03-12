@@ -22,3 +22,6 @@ Principal ----.> Foi feito os testes de joabilidade e analizado cada passo como 
 Dia 12/03/2026
 
 Entrege a mecanica do nivelamento 6 a 9 ano funcionando com seu respectivos calculos e atualiação no Ranked e portais no lobby
+
+
+Retirado vários conflitos e foi deletado o PlayerStat.lua, leaderStats.lua, e foi adicionado o no lugar do leaderstats o GerenciadorStats.lua e retirado o conflito do LocalScript.lua do MenuSerie onde que os ranked se conflitavam agora no Nivelamento os ranked estão atualizando normalmente 
