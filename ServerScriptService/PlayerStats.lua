@@ -9,6 +9,11 @@ Players.PlayerAdded:Connect(function(player)
 	stats.Name = "PlayerStats"
 	stats.Parent = player
 
+	local serie = Instance.new("IntValue")
+	serie.Name = "Serie"
+	serie.Value = 0 -- ainda não escolheu
+	serie.Parent = stats
+
 	local iniciado = Instance.new("BoolValue")
 	iniciado.Name = "JogoIniciado"
 	iniciado.Value = false
