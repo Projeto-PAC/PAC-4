@@ -6,7 +6,7 @@ local totalValue = leaderstats:WaitForChild("Total")
 local label = script.Parent:WaitForChild("SerieAtual")
 
 local function atualizarTexto()
-	label.Text = "TOTAL DE ACERTOS: " .. totalValue.Value
+	label.Text = "Parabéns: " .. totalValue.Value .. " Pontos"
 end
 
 -- Toda vez que o Total mudar no servidor, a sua tela muda na hora
