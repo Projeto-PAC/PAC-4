@@ -1,21 +1,25 @@
 local players = game.Players
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
--- 1. CONFIGURAÇÕES (Mudamos para a 7ª Série)
-local SERIE_ALVO = 7
+-- ==========================================
+-- 1. CONFIGURAÇÕES
+-- ==========================================
 local MAX_PLAYERS = 50
 local portal = script.Parent
-local som = portal:WaitForChild("SomTeleporte", 5)
+local som = portal:FindFirstChild("SomTeleporte")
 
--- 2. LOCALIZAÇÃO EXATA
+-- LOCALIZAÇÃO (Dentro da pasta ModosDeJogo)
 local modoPasta = workspace:WaitForChild("ModosDeJogo", 10)
-local arenaFolder = modoPasta and modoPasta:WaitForChild("Arena7Ano", 10) -- Pasta do 7º Ano
+local arenaFolder = modoPasta and modoPasta:WaitForChild("Arena7Ano", 10)
 
-local spawnDestino = arenaFolder and arenaFolder:WaitForChild("SpawnArena", 5)
+-- ✅ AQUI ESTÁ O NOME QUE VOCÊ QUERIA:
+local spawnDestino = arenaFolder and arenaFolder:WaitForChild("SpawnArena7", 5) 
 local centroArena = arenaFolder and arenaFolder:WaitForChild("CentroDaArena", 5)
-local statusValue = ReplicatedStorage:WaitForChild("StatusArena7", 5) -- StringValue da 7ª Série
+local statusValue = ReplicatedStorage:WaitForChild("StatusArena7", 5)
 
--- 3. FUNÇÃO DE CONTAGEM
+-- ==========================================
+-- 2. FUNÇÃO DE CONTAGEM
+-- ==========================================
 local function contarPlayers()
 	local count = 0
 	if not centroArena then return 0 end
@@ -28,18 +32,22 @@ local function contarPlayers()
 	return count
 end
 
--- 4. ATUALIZAÇÃO DO STATUS NO PAINEL
+-- ==========================================
+-- 3. ATUALIZAÇÃO DO STATUS (MENU)
+-- ==========================================
 task.spawn(function()
 	while true do
 		local total = contarPlayers()
 		if statusValue and statusValue:IsA("StringValue") then
-			statusValue.Value = SERIE_ALVO .. "º Ano: " .. total .. "/" .. MAX_PLAYERS
+			statusValue.Value = "7º Ano: " .. total .. "/" .. MAX_PLAYERS
 		end
 		task.wait(2)
 	end
 end)
 
--- 5. LÓGICA DE TELETRANSPORTE
+-- ==========================================
+-- 4. LÓGICA DE TELEPORTE
+-- ==========================================
 portal.Touched:Connect(function(hit)
 	local char = hit.Parent
 	local p = players:GetPlayerFromCharacter(char)
@@ -50,8 +58,11 @@ portal.Touched:Connect(function(hit)
 
 			pcall(function() if som then som:Play() end end)
 
+			-- Teleporte para a SpawnArena7
 			if spawnDestino then
 				char.HumanoidRootPart.CFrame = spawnDestino.CFrame + Vector3.new(0, 3, 0)
+			else
+				warn("⚠️ ERRO: SpawnArena7 não encontrada na Arena7Ano!")
 			end
 
 			task.wait(1)

@@ -17,3 +17,8 @@ Replicação de Conteúdo: Arenas para os 7º, 8º e 9º anos foram replicadas.
 Futuras Edições: Planejamento para indexar essas arenas nas próximas versões da plataforma.
 
 Principal ----.> Foi feito os testes de joabilidade e analizado cada passo como multiplayer até o final do retorna para o lobby e visto que não ouve bugs após as adições.
+
+
+Dia 12/03/2026
+
+Entrege a mecanica do nivelamento 6 a 9 ano funcionando com seu respectivos calculos e atualiação no Ranked e portais no lobby
