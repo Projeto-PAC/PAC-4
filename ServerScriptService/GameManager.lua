@@ -109,11 +109,10 @@ end
 local function getJogadoresNaArena()
 
 	local lista = {}
-
+	
 	for _,p in pairs(players:GetPlayers()) do
 
 		local stats = p:FindFirstChild("PlayerStats")
-
 		if stats and stats:FindFirstChild("JogoIniciado") and stats.JogoIniciado.Value then
 			table.insert(lista,p)
 		end
@@ -156,13 +155,11 @@ local function executarRound(serie,dificuldade)
 		if bloco then
 
 			local lbl = bloco.SurfaceGui:FindFirstChildWhichIsA("TextLabel")
-
 			local valor = opcoes[math.random(1,#opcoes)]
 
 			local ehCerto = valor == correta
 
 			bloco:SetAttribute("Correta",ehCerto)
-
 			bloco.Transparency = 0
 			bloco.CanCollide = true
 
@@ -181,11 +178,8 @@ local function executarRound(serie,dificuldade)
 	for t = tempoRound,0,-1 do
 
 		timerLabel.Text = tostring(t)
-
 		task.wait(1)
-
 		local ativos = getJogadoresAtivos()
-
 		if #ativos <= 1 then
 			break
 		end
@@ -198,9 +192,7 @@ local function executarRound(serie,dificuldade)
 	for i=1,totalBlocos do
 
 		local bloco = answersFolder:FindFirstChild("Answer"..i)
-
 		if bloco and not bloco:GetAttribute("Correta") then
-
 			bloco.Transparency = 1
 			bloco.CanCollide = false
 		end
@@ -209,19 +201,15 @@ local function executarRound(serie,dificuldade)
 	task.wait(4)
 
 	local ativos = getJogadoresAtivos()
-
 	if #ativos == 0 then
 		return "MORTE_TOTAL"
 	end
-
 	if #ativos == 1 then
 		return "FIM"
 	end
 
 	return "CONTINUA"
 end
-
-
 
 
 -- ==========================================
@@ -258,17 +246,20 @@ local function rodarCicloCompeticao()
 		aguardandoJogadores = true
 
 		questionLabel.Text = "ARENA ABERTA!"
-
+		
 		for _,porta in pairs(portas) do
 			porta.CanCollide = false
 			porta.Transparency = 0.8
 			porta.Color = Color3.fromRGB(0,255,0)
 		end
-
+		
+		local jogadores 
+		
 		repeat
 			task.wait(1)
-		until #getJogadoresNaArena() >= 2
-
+			jogadores = getJogadoresNaArena()
+		until #jogadores >= 2
+        print(" Iniciou ")
 		for i=10,1,-1 do
 			timerLabel.Text = tostring(i)
 			questionLabel.Text = "COMEÇANDO EM "..i
@@ -285,7 +276,7 @@ local function rodarCicloCompeticao()
 
 		local endgame = false
 		local status = "CONTINUA"
-
+       
 		while status == "CONTINUA" do
 
 			if not endgame then
@@ -334,5 +325,6 @@ local function rodarCicloCompeticao()
 
 	end
 end
+
 
 task.spawn(rodarCicloCompeticao)
