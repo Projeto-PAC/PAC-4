@@ -2,6 +2,7 @@ local workspace = game.Workspace
 local players = game.Players
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local DataStoreService = game:GetService("DataStoreService")
+local Util = require(ReplicatedStorage.PerguntasMatematica.Utilidades)
 
 -- ==========================================
 -- BANCO DE DADOS
@@ -104,6 +105,24 @@ local function getJogadoresAtivos()
 	return ativos
 end
 
+
+local function getJogadoresNaArena()
+
+	local lista = {}
+
+	for _,p in pairs(players:GetPlayers()) do
+
+		local stats = p:FindFirstChild("PlayerStats")
+
+		if stats and stats:FindFirstChild("JogoIniciado") and stats.JogoIniciado.Value then
+			table.insert(lista,p)
+		end
+
+	end
+
+	return lista
+end
+
 -- ==========================================
 -- EXECUTAR ROUND
 -- ==========================================
@@ -151,7 +170,6 @@ local function executarRound(serie,dificuldade)
 			bloco.Color = cor
 
 			if lbl then
-				local Util = require(ReplicatedStorage.PerguntasMatematica.Utilidades)
 
 				lbl.Text = Util.formatarNumero(valor)
 			end
@@ -203,14 +221,40 @@ local function executarRound(serie,dificuldade)
 	return "CONTINUA"
 end
 
+
+
+
 -- ==========================================
 -- LOOP PRINCIPAL
 -- ==========================================
 
+local function resetArena()
+
+	for i = 1, totalBlocos do
+
+		local bloco = answersFolder:FindFirstChild("Answer"..i)
+
+		if bloco then
+			bloco.Transparency = 0
+			bloco.CanCollide = true
+			bloco:SetAttribute("Correta", nil)
+			bloco.Color =  Color3.fromRGB(120,120,120)
+
+			local lbl = bloco.SurfaceGui:FindFirstChildWhichIsA("TextLabel")
+			if lbl then
+				lbl.Text = ""
+			end
+		end
+
+	end
+
+	timerLabel.Text = ""
+
+end
+
 local function rodarCicloCompeticao()
-
 	while true do
-
+		resetArena()
 		aguardandoJogadores = true
 
 		questionLabel.Text = "ARENA ABERTA!"
@@ -223,7 +267,7 @@ local function rodarCicloCompeticao()
 
 		repeat
 			task.wait(1)
-		until #getJogadoresAtivos() >= 2
+		until #getJogadoresNaArena() >= 2
 
 		for i=10,1,-1 do
 			timerLabel.Text = tostring(i)
@@ -248,31 +292,24 @@ local function rodarCicloCompeticao()
 
 				for _, dificuldade in ipairs({"Facil","Medio","Dificil"}) do
 					for serie = 6,9 do
-
 						status = executarRound(serie,dificuldade)
-
 						if status ~= "CONTINUA" then
 							break
 						end
-
 						if serie == 9 and dificuldade == "Dificil" then
 							endgame = true
 						end
 					end
-
 					if status ~= "CONTINUA" then
 						break
 					end
 				end
-
 			else
 				-- ENDGAME: sempre 9º ano difícil
 				status = executarRound(9,"Dificil")
 			end
-
 		end
-
-		local sobreviventes = getJogadoresAtivos()
+		local sobreviventes = getJogadoresNaArena()
 
 		if #sobreviventes == 1 then
 			local vencedor = sobreviventes[1]
@@ -282,17 +319,18 @@ local function rodarCicloCompeticao()
 		end
 		
 		-- atualiza o status dos jogadores
-		for _,p in pairs(players:GetPlayers()) do
-
+		for _, p in pairs(players:GetPlayers()) do
+			p:SetAttribute("JaEntrou", nil)
 			local stats = p:FindFirstChild("PlayerStats")
-
-			if stats then
-				stats.JogoIniciado.Value = false
+			local folder = p:FindFirstChild("AcertosPorSerie")
+			if stats then stats.JogoIniciado.Value = false end
+			if folder then
+				for _, val in pairs(folder:GetChildren()) do val.Value = false end
 			end
-
 		end
-
-		task.wait(7)
+		
+		task.wait(5)
+		eventoIniciar:FireAllClients("RESET_TOTAL")
 
 	end
 end
