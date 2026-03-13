@@ -25,3 +25,19 @@ Entrege a mecanica do nivelamento 6 a 9 ano funcionando com seu respectivos calc
 
 
 Retirado vários conflitos e foi deletado o PlayerStat.lua, leaderStats.lua, e foi adicionado o no lugar do leaderstats o GerenciadorStats.lua e retirado o conflito do LocalScript.lua do MenuSerie onde que os ranked se conflitavam agora no Nivelamento os ranked estão atualizando normalmente 
+
+
+Dia 12/03/2026
+Comentado as linhas 
+20
+85
+99 à 106
+
+isolando o spawn antigo e instalado um scrip nas Parts saídas
+
+SaidaArena6
+SaidaArena7
+SaidaArena8
+SaidaArena9
+
+Novo spawn para o lob sem bugs
