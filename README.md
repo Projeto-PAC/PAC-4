@@ -1,5 +1,5 @@
 "# PAC-4" 
-Atualizações e melhorias e Bugs
+Agenor - Atualizações e melhorias e Bugs
 Arena 6:
 
 Matérias: Abrange todo o conteúdo completo de matemática do 6º ano.
@@ -19,7 +19,7 @@ Futuras Edições: Planejamento para indexar essas arenas nas próximas versões
 Principal ----.> Foi feito os testes de joabilidade e analizado cada passo como multiplayer até o final do retorna para o lobby e visto que não ouve bugs após as adições.
 
 
-Dia 12/03/2026
+Agenor Dia 12/03/2026
 
 Entrege a mecanica do nivelamento 6 a 9 ano funcionando com seu respectivos calculos e atualiação no Ranked e portais no lobby
 
@@ -27,7 +27,7 @@ Entrege a mecanica do nivelamento 6 a 9 ano funcionando com seu respectivos calc
 Retirado vários conflitos e foi deletado o PlayerStat.lua, leaderStats.lua, e foi adicionado o no lugar do leaderstats o GerenciadorStats.lua e retirado o conflito do LocalScript.lua do MenuSerie onde que os ranked se conflitavam agora no Nivelamento os ranked estão atualizando normalmente 
 
 
-Dia 12/03/2026
+Agenor Dia 12/03/2026
 Comentado as linhas 
 20
 85
@@ -41,3 +41,14 @@ SaidaArena8
 SaidaArena9
 
 Novo spawn para o lob sem bugs
+
+Dia 14/03/2026
+
+Fixado bug que não atualizava o Ranked individual dos Players na tela onde foi atualizado os seguintes Scripts
+Arena 7 anos
+Arena 8 ano
+Arena 9 ano 
+
+Atualizado Scrip StarterGui\MenuSerie\LocalScrip.lua Fix de atualização de Ranked Global
+
+Adicionado painel de Ranked 10 Player 3D e 3 avatares que vam clonar os 3 primeiros Player
