@@ -15,7 +15,7 @@ local answersFolder = arenaFolder:WaitForChild("Answers")
 local centroArenaPart = arenaFolder:WaitForChild("CentroDaArena")
 
 -- Referências para Saída e Spawn
-local saidaPart = arenaFolder:WaitForChild("SaidaArena7") 
+--local saidaPart = arenaFolder:WaitForChild("SaidaArena7") 
 local spawnPonto = arenaFolder:WaitForChild("SpawnArena7")
 local destinoLobby = arenaFolder:WaitForChild("DestinoLobby")
 
@@ -42,7 +42,7 @@ local CoresAleatorias = {
 }
 
 -- ==========================================================================
--- 2. ESTILIZAÇÃO VISUAL COMPLETA (MANTENDO TODAS AS LINHAS)
+-- 2. ESTILIZAÇÃO VISUAL  DO TIMEBOARD
 -- ==========================================================================
 local function aplicarEstilos()
 	-- TIMERBOARD (AZUL NEON BRILHANTE)
@@ -50,13 +50,9 @@ local function aplicarEstilos()
 	local uiGradientT = timerLabel:FindFirstChild("UIGradient") or Instance.new("UIGradient", timerLabel)
 
 	timerLabel.Size = UDim2.new(1, 0, 1, 0)
-	timerLabel.Position = UDim2.new(0, 0, 0, 0)
-	timerLabel.TextXAlignment = Enum.TextXAlignment.Center
-	timerLabel.TextYAlignment = Enum.TextYAlignment.Center
 	timerLabel.TextScaled = true
-	timerLabel.BackgroundColor3 = Color3.fromRGB(0, 85, 255) 
-	timerLabel.BackgroundTransparency = 0 
-	timerLabel.TextColor3 = Color3.fromRGB(255, 255, 255) 
+	timerLabel.BackgroundColor3 = Color3.fromRGB(30, 30, 30) -- Cinza escuro (igual ao QuestionBoard)
+	timerLabel.TextColor3 = Color3.fromRGB(255, 255, 255) -- Texto Branco
 	timerLabel.Font = Enum.Font.LuckiestGuy 
 
 	uiStrokeT.Color = Color3.fromRGB(0, 255, 255) 
@@ -68,6 +64,7 @@ local function aplicarEstilos()
 		ColorSequenceKeypoint.new(0.5, Color3.fromRGB(0, 170, 255)),
 		ColorSequenceKeypoint.new(1, Color3.fromRGB(0, 85, 255))
 	})
+	
 	uiGradientT.Rotation = 90
 
 	-- QUESTIONBOARD (BRANCO COM BORDA PRETA GROSSA)
@@ -83,7 +80,7 @@ local function aplicarEstilos()
 	uiStrokeQ.Thickness = 12 
 	uiStrokeQ.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
 
-	saidaPart.Material = Enum.Material.Neon
+	--saidaPart.Material = Enum.Material.Neon
 end
 aplicarEstilos()
 
@@ -97,14 +94,14 @@ local function faxinaGeral()
 end
 faxinaGeral() 
 
-saidaPart.Touched:Connect(function(hit)
-	local character = hit.Parent
-	local player = players:GetPlayerFromCharacter(character)
-	if player and character:FindFirstChild("HumanoidRootPart") then
-		character.HumanoidRootPart.CFrame = destinoLobby.CFrame + Vector3.new(0, 3, 0)
-		player:SetAttribute("EscolhaCorreta", nil)
-	end
-end)
+--saidaPart.Touched:Connect(function(hit)
+	--local character = hit.Parent
+	--local player = players:GetPlayerFromCharacter(character)
+	--if player and character:FindFirstChild("HumanoidRootPart") then
+	--	character.HumanoidRootPart.CFrame = destinoLobby.CFrame + Vector3.new(0, 3, 0)
+	--	player:SetAttribute("EscolhaCorreta", nil)
+	--end
+--end)
 
 -- ==========================================================================
 -- 4. GERADORES DE CÁLCULO (7º ANO)
@@ -259,7 +256,7 @@ while true do
 		if buzzerSound then buzzerSound:Play() end
 		if aplausos4S then aplausos4S:Play() end
 
-		-- 🚨 FINALIZAÇÃO: ESTILO ARENA 6 (FICA SÓLIDO!) 🚨
+		-- FINALIZAÇÃO: ESTILO ARENA 7
 		for i = 1, 36 do
 			local b = answersFolder:FindFirstChild("Answer"..i)
 			if b and b:IsA("BasePart") then
@@ -276,22 +273,28 @@ while true do
 			end
 		end
 
-		-- ✅ SALVAMENTO BLINDADO
+		--  SALVAMENTO RANKED
 		for _, p in pairs(ativos) do
 			if p:GetAttribute("EscolhaCorreta") == true then
+				p:SetAttribute("EscolhaCorreta", false) 
+
+				local acertos = p:FindFirstChild("AcertosPorSerie")
 				local stats = p:FindFirstChild("leaderstats")
-				if stats then
-					local s7 = stats:FindFirstChild("7º Ano")
-					if s7 then
-						s7.Value += 1
+
+				if acertos and stats then
+					-- Atualiza o valor correto que dispara o evento de atualização do Total
+					local serie7 = acertos:FindFirstChild("Serie7")
+					if serie7 then
+						serie7.Value += 1
+
 						task.spawn(function()
 							pcall(function()
 								RankingGlobal:SetAsync("Player_" .. p.UserId, stats.Total.Value)
 								rankingStore:SetAsync("Player_" .. p.UserId, {
-									Serie6 = stats["6º Ano"].Value,
-									Serie7 = s7.Value,
-									Serie8 = stats["8º Ano"].Value,
-									Serie9 = stats["9º Ano"].Value,
+									Serie6 = acertos.Serie6.Value,
+									Serie7 = serie7.Value,
+									Serie8 = acertos.Serie8.Value,
+									Serie9 = acertos.Serie9.Value,
 									Comp = stats.Camp.Value
 								})
 							end)
@@ -300,8 +303,12 @@ while true do
 				end
 			end
 		end
+
+		print(" Rodada finalizada. Próxima em 4s.")
 		task.wait(4)
 	else
-		faxinaGeral(); questionLabel.Text = "AGUARDANDO ALUNOS..."; task.wait(5)
+		faxinaGeral()
+		questionLabel.Text = "AGUARDANDO ALUNOS..."
+		task.wait(5)
 	end
 end
