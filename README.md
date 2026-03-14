@@ -52,3 +52,7 @@ Arena 9 ano
 Atualizado Scrip StarterGui\MenuSerie\LocalScrip.lua Fix de atualização de Ranked Global
 
 Adicionado painel de Ranked 10 Player 3D e 3 avatares que vam clonar os 3 primeiros Player
+
+Agenor Data14/03/2026 horas 16:00
+
+Concertado bug do ciclo da arena e da morte súbita Scrip GamaManenger e o ControleSerie

@@ -26,22 +26,28 @@ Players.PlayerAdded:Connect(function(p)
 	-- ==================================================
 	-- 🚀 CALCULADORA REAL-TIME (SOMA TUDO + CAMP)
 	-- ==================================================
+	-- 1. Remova o RankingGlobal:SetAsync de dentro da função atualizarTudo
 	local function atualizarTudo()
-		-- Sincroniza os valores das séries para a parede
 		s6.Value = i6.Value
 		s7.Value = i7.Value
 		s8.Value = i8.Value
 		s9.Value = i9.Value
 
-		-- SOMA REAL: Agora o Camp faz parte da conta ao vivo!
 		local somaTotal = i6.Value + i7.Value + i8.Value + i9.Value + camp.Value
 		total.Value = somaTotal
-
-		-- ATUALIZA O RANKING GLOBAL NA HORA
-		pcall(function()
-			RankingGlobal:SetAsync("Player_" .. p.UserId, somaTotal)
-		end)
+		-- REMOVIDO: RankingGlobal:SetAsync daqui de dentro!
 	end
+
+	-- 2. Adicione este loop de salvamento (salva a cada 60 segundos)
+	task.spawn(function()
+		while p.Parent do
+			task.wait(60) -- Salva a cada 1 minuto para não dar lag
+			pcall(function()
+				RankingGlobal:SetAsync("Player_" .. p.UserId, total.Value)
+				print("💾 Dados de " .. p.Name .. " sincronizados com o Ranking Global.")
+			end)
+		end
+	end)
 
 	-- ESCUTADORES (Gatilhos): Se qualquer um dos 5 mudar, ele soma na hora
 	i6.Changed:Connect(atualizarTudo)
@@ -73,7 +79,7 @@ Players.PlayerRemoving:Connect(function(p)
 				Serie7 = acertos.Serie7.Value,
 				Serie8 = acertos.Serie8.Value,
 				Serie9 = acertos.Serie9.Value,
-				Comp = leaderstats.Camp.Value
+				Camp = leaderstats.Camp.Value
 			})
 		end)
 	end
