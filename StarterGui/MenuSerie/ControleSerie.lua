@@ -27,7 +27,7 @@ local function atualizarPortas(estado)
 			porta.Transparency = 0.7
 			porta.Color = Color3.fromRGB(0, 255, 0) -- Verde
 		end
-		labelSerie.Text = "Atenção"
+		labelSerie.Text = "Arena Comp  OFF"
 		labelSerie.TextColor3 = Color3.fromRGB(200, 96, 26)
 		painel.Visible = true
 		botaoSair.Visible = true
@@ -47,7 +47,7 @@ local function atualizarPortas(estado)
 		end
 		labelSerie.Text = "Aguarde..."
 		labelSerie.TextColor3 = Color3.fromRGB(255, 165, 0)
-		botaoSair.Visible = false
+		botaoSair.Visible = false 
 
 	elseif estado == "VERMELHO" then
 		-- ESTADO: Partida em andamento (Bloqueio Total)
@@ -56,9 +56,10 @@ local function atualizarPortas(estado)
 			porta.Transparency = 0
 			porta.Color = Color3.fromRGB(255, 0, 0) -- Vermelho
 		end
-		labelSerie.Text = "Valendo"
+		-- 🛑 Só executa estas linhas se for o jogador da arena
+		labelSerie.Text = "Arena Comp ON"
 		labelSerie.TextColor3 = Color3.fromRGB(0, 255, 127)
-		painel.Visible = false -- Esconde o painel durante o jogo
+		painel.Visible = false -- Esconde o painel individualmente
 	end
 end
 
@@ -77,12 +78,24 @@ eventoIniciar.OnClientEvent:Connect(function(comando)
 		atualizarPortas("VERDE")
 
 	elseif comando == "SENSOR_ATIVADO" or comando == "PORTA_LARANJA" or comando == "PRENDER_INDIVIDUAL" then
-		-- Registro individual ao tocar no sensor
+		-- Registro individual ao tocar no sensor (Só o player que tocou recebe isso)
 		selecionarSerie(6)
 
 	elseif comando == "FECHAR_ARENA_VERMELHO" or comando == "TRANCAR_GERAL" then
-		-- Início da competição
-		atualizarPortas("VERMELHO")
+		-- 🛑 LÓGICA DE SEGMENTAÇÃO:
+		if player:GetAttribute("JaEntrou") == true then
+			-- Eu estou jogando? Então esconde minha UI
+			atualizarPortas("VERMELHO")
+		else
+			-- Eu estou fora? Só fecha as portas fisicamente para eu ver, mas mantém meu painel
+			for _, porta in pairs(portas) do
+				porta.CanCollide = true
+				porta.Transparency = 0
+				porta.Color = Color3.fromRGB(255, 0, 0)
+			end
+			-- O painel continua VISÍVEL para quem está de fora
+			painel.Visible = true 
+		end
 	end
 end)
 
@@ -93,6 +106,3 @@ painel.S6.MouseButton1Click:Connect(function() selecionarSerie(6) end)
 painel.S7.MouseButton1Click:Connect(function() selecionarSerie(7) end)
 painel.S8.MouseButton1Click:Connect(function() selecionarSerie(8) end)
 painel.S9.MouseButton1Click:Connect(function() selecionarSerie(9) end)
-
--- ✅ NOTA: A função CharacterAdded foi removida.
--- Isso impede que o jogador abra a porta localmente ao renascer na arquibancada.

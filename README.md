@@ -69,5 +69,5 @@ Concertado bug do ciclo da arena e da morte súbita Scrip GamaManenger e o Contr
 8 feito o Fix da Morte Súbita
 9 Placar 2d atualizando todos o modos no Ranked Global
 10 Opinião do Programador....To cansado vou dormir, amanha tem mais, se eu parar por muito tempo de mecher, eu vou esquecer de tudo, ae vira numa lambança. Deveria ter salário pra fazer isso MDS...
-
+11 Alterado o ControleSerie para atuallização dos estatus de ranked Global e para um fix do ciclo da arena
 
