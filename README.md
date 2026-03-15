@@ -26,8 +26,8 @@ Entrege a mecanica do nivelamento 6 a 9 ano funcionando com seu respectivos calc
 
 Retirado vários conflitos e foi deletado o PlayerStat.lua, leaderStats.lua, e foi adicionado o no lugar do leaderstats o GerenciadorStats.lua e retirado o conflito do LocalScript.lua do MenuSerie onde que os ranked se conflitavam agora no Nivelamento os ranked estão atualizando normalmente 
 
-
-Agenor Dia 12/03/2026
+--------------------------------------------------------------------------------------------------------------------
+---Agenor Dia 12/03/2026
 Comentado as linhas 
 20
 85
@@ -41,8 +41,8 @@ SaidaArena8
 SaidaArena9
 
 Novo spawn para o lob sem bugs
-
-Dia 14/03/2026
+----------------------------------------------------------------------------------------------------------
+--- Agenor Dia 14/03/2026
 
 Fixado bug que não atualizava o Ranked individual dos Players na tela onde foi atualizado os seguintes Scripts
 Arena 7 anos
@@ -52,7 +52,22 @@ Arena 9 ano
 Atualizado Scrip StarterGui\MenuSerie\LocalScrip.lua Fix de atualização de Ranked Global
 
 Adicionado painel de Ranked 10 Player 3D e 3 avatares que vam clonar os 3 primeiros Player
-
-Agenor Data14/03/2026 horas 16:00
+----------------------------------------------------------------------------------------------------------
+-----Agenor Data14/03/2026 horas 16:00
 
 Concertado bug do ciclo da arena e da morte súbita Scrip GamaManenger e o ControleSerie
+-----------------------------------------------------------------------------------------------------
+---Agenor Data 14/03/2026 Hora 23:31
+
+1 Criado um Script em SeverScripServer chamado DataStoreHandler que ajuda a gravar os dados dos Hnaked dos Players e quando eles voltam o meso está atualizado
+2 Alterado GameManager para Atualização de estatus do Ranked da Arena de Competição
+3 Adicionado Scrip dentro de StarterGui/MenuSerie/Painel/LocalScript.lua para isolar a frase "Arena Comp  OFF", "Arena Comp  ON" e funionar dentro da arena de Competição
+4 Alterado TimePlayedClass.lua para isolar os robos de testes à não aparecer no Ranked
+5 Estilizado o Workspace com isolamendo de MOntanhas e chão de gramado
+6 Contrído a arena do Looby 
+7 Consertado o bug de ciclo de radadas da arena de competição
+8 feito o Fix da Morte Súbita
+9 Placar 2d atualizando todos o modos no Ranked Global
+10 Opinião do Programador....To cansado vou dormir, amanha tem mais, se eu parar por muito tempo de mechar, eu vou esquecer de tudo, ae vira numa lambança. Deveria ter salário pra fazer isso MDS...
+
+

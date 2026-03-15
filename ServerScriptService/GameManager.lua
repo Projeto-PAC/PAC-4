@@ -2,6 +2,7 @@ local workspace = game.Workspace
 local players = game.Players
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local DataStoreService = game:GetService("DataStoreService")
+local rankingStore = DataStoreService:GetDataStore("RankingAcertos_V5")
 local Util = require(ReplicatedStorage.PerguntasMatematica.Utilidades)
 
 -- ==========================================
@@ -107,6 +108,7 @@ local function configurarSensores()
 				if p then
 					local stats = p:FindFirstChild("PlayerStats")
 					if stats and stats.JogoIniciado.Value == false then
+						-- Marca que este jogador específico entrou
 						p:SetAttribute("JaEntrou", true)
 						stats.JogoIniciado.Value = true
 						eventoIniciar:FireClient(p, "PRENDER_INDIVIDUAL") 
@@ -120,13 +122,38 @@ configurarSensores()
 
 local function distribuirPremiosRanked()
 	local vencedor = _G.PodioFila[#_G.PodioFila]
-	if vencedor and vencedor:FindFirstChild("leaderstats") then 
-		local camp = vencedor.leaderstats:FindFirstChild("Camp")
-		if camp then
-			camp.Value += 100 
+
+	-- Verifica se o vencedor existe e se tem a pasta de acertos
+	if vencedor and vencedor:FindFirstChild("leaderstats") and vencedor:FindFirstChild("AcertosPorSerie") then 
+		local campValue = vencedor.leaderstats:FindFirstChild("Camp")
+		local acertos = vencedor.AcertosPorSerie
+
+		if campValue then
+			campValue.Value += 100 -- Dá os pontos no jogo
+			local key = "Player_" .. vencedor.UserId
+
+			-- 1. ATUALIZA O TOTAL NO RANKING GLOBAL
 			pcall(function()
-				RankingGlobal:SetAsync("Player_" .. vencedor.UserId, vencedor.leaderstats.Total.Value)
+				RankingGlobal:SetAsync(key, vencedor.leaderstats.Total.Value)
 			end)
+
+			-- 2. ATUALIZA A TABELA DE DETALHES (Resolve o erro do rankingStore)
+			pcall(function()
+				-- Busca o que já existe ou cria uma tabela nova se for a primeira vez
+				local detalhes = rankingStore:GetAsync(key) or {Serie6=0, Serie7=0, Serie8=0, Serie9=0, Camp=0}
+
+				-- Preenche com os valores atuais do jogador
+				detalhes.Serie6 = acertos.Serie6.Value
+				detalhes.Serie7 = acertos.Serie7.Value
+				detalhes.Serie8 = acertos.Serie8.Value
+				detalhes.Serie9 = acertos.Serie9.Value
+				detalhes.Camp = campValue.Value
+
+				-- Salva na gaveta de detalhes
+				rankingStore:SetAsync(key, detalhes)
+			end)
+
+			print("Sucesso! Ranking e Detalhes atualizados para " .. vencedor.Name)
 		end
 	end
 end
@@ -263,8 +290,9 @@ local function rodarCicloCompeticao()
 
 		task.wait(7)
 
-		-- 🧹 RESET DO CICLO
+		-- 🧹 RESET DO CICLO (Fundamental para o próximo round)
 		for _, p in pairs(players:GetPlayers()) do
+			-- Limpa o atributo para o próximo round
 			p:SetAttribute("JaEntrou", false)
 			local stats = p:FindFirstChild("PlayerStats")
 			if stats and stats:FindFirstChild("JogoIniciado") then
