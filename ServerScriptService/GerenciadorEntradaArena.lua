@@ -1,4 +1,7 @@
+-- SERVIÇOS E VARIÁVEIS (INTEGRADO)
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local Players = game:GetService("Players")
+
 local eventoIniciar = ReplicatedStorage:WaitForChild("IniciarArena")
 local eventoVencedor = ReplicatedStorage:WaitForChild("VencedorDefinido")
 local pasta = workspace:WaitForChild("SistemaArena")
@@ -6,6 +9,13 @@ local pasta = workspace:WaitForChild("SistemaArena")
 local portas = {pasta:WaitForChild("Porta1"), pasta:WaitForChild("Porta2"), pasta:WaitForChild("Porta3")}
 local jogadoresNaArena = {} 
 local contagemIniciada = false
+
+-- VARIÁVEL DO FOCARLOBBY
+local NOME_LOBBY = "SpawnLocation" 
+
+-- ==========================================
+-- 1. SISTEMA DA ARENA (GERENCIADOR)
+-- ==========================================
 
 -- Função para colocar no MODO INICIAL
 local function modoInicial()
@@ -59,7 +69,7 @@ local function aoTocar(hit)
 	end
 end
 
--- Sensores
+-- Sensores da Arena
 for _, objeto in pairs(pasta:GetChildren()) do
 	if objeto:IsA("BasePart") and string.find(objeto.Name, "SensorArena") then
 		objeto.Touched:Connect(aoTocar)
@@ -79,14 +89,15 @@ eventoVencedor.OnServerEvent:Connect(function()
 		porta.Color = Color3.fromRGB(0, 255, 0)
 	end
 
-	-- AVISA OS CLIENTES
-	for _, p in pairs(getJogadoresAtivos()) do
+	-- Nota: A função getJogadoresAtivos() não estava definida no snippet original, 
+	-- certifique-se que ela exista no seu script principal ou use game.Players:GetPlayers()
+	for _, p in pairs(game.Players:GetPlayers()) do
 		if p:GetAttribute("JaEntrou") == true then
 			eventoIniciar:FireClient(p, "TRANCAR_GERAL")
 		end
 	end
 
-	--  resetar quando a arena ficar vazia
+	-- resetar quando a arena ficar vazia
 	task.spawn(function()
 		while true do
 			task.wait(5)
@@ -97,3 +108,59 @@ eventoVencedor.OnServerEvent:Connect(function()
 		end
 	end)
 end)
+
+
+-- ==========================================
+-- 2. SEGURANÇA, RESPawn E FOCO NO LOBBY
+-- ==========================================
+
+local function gerenciarEntrada(p)
+	print("🔍 MONITORANDO: " .. p.Name)
+
+	p.CharacterAdded:Connect(function(char)
+		print("📦 BONECO NASCEU: " .. p.Name)
+
+		local hum = char:WaitForChild("Humanoid")
+		local hrp = char:WaitForChild("HumanoidRootPart", 10)
+		local stats = p:WaitForChild("PlayerStats", 10)
+		local lobby = workspace:FindFirstChild("LobbySpawn") -- Usado pelo Gerenciador
+		local spawnLobbyFocar = workspace:FindFirstChild(NOME_LOBBY, true) -- Usado pelo FocarLobby
+
+		-- --- LÓGICA DO FOCARLOBBY.LUA ---
+		if not p:GetAttribute("PrimeiroNascimentoConcluido") then
+			if hrp and spawnLobbyFocar then
+				task.wait(0.1) -- Delay para carregar
+				hrp.CFrame = spawnLobbyFocar.CFrame + Vector3.new(0, 5, 0)
+
+				p:SetAttribute("PrimeiroNascimentoConcluido", true)
+				print("Player forçado ao Lobby no início da sessão.")
+			end
+		else
+			print("Player morreu/renasceu. Deixando o sistema de spawn do Roblox agir.")
+		end
+
+		-- --- LÓGICA DE RESPAWN DO GERENCIADOR ---
+		hum.Died:Connect(function()
+			print("💀 " .. p.Name .. " morreu. Preparando respawn...")
+
+			if stats then stats.JogoIniciado.Value = false end
+
+			task.wait(3) -- Tempo de espera do túmulo
+			p:LoadCharacter() 
+		end)
+
+		-- TELEPORTE PARA O LOBBY (Se não estiver em jogo e não for o primeiro nascimento já tratado)
+		if lobby and hrp and stats and stats.JogoIniciado.Value == false then
+			task.wait(0.1) 
+			char:PivotTo(lobby.CFrame + Vector3.new(0, 5, 0))
+			print("📍 " .. p.Name .. " enviado ao Lobby pelo Gerenciador.")
+		end
+	end)
+
+	if not p.Character then
+		p:LoadCharacter()
+	end
+end
+
+-- Conexão para novos players
+Players.PlayerAdded:Connect(gerenciarEntrada)

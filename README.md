@@ -80,3 +80,62 @@ Ampliar as contas matemática
 
 Ficando apra traz o bug para sair da arena. 
 
+
+Agenor Dias 17/03/2026 as 16:10H
+
+Finalmente-----------------------um -----------------relatório----------------------de----------------------Evolução 
+
+Relatório de Evolução: Projeto Math Rush (Roblox)
+Este documento detalha as implementações técnicas e refinamentos realizados no motor principal do jogo, focando em automação, precisão de detecção e experiência do usuário (UX).
+
+ 1. Reengenharia do Core (GameManager)
+
+A maior mudança foi a centralização da inteligência da Arena. Saímos De scripts espalhados para um Gerenciador Único e eficiente.
+
+Fusão do Spawn Inicial: Integramos o FocarLobby.lua diretamente no GameManager. E deletado o arquivo FocarLobby.lua do ServerScriptService. 
+
+Agora, o player é forçado ao lobby apenas na primeira entrada da sessão, "PARANDO O BUG DE MORRER NA ENTRADA DA ARENA", permitindo que o sistema de arquibancada e respawn funcione livremente depois.
+
+Extinção do SensorArena2 Físico: Substituído a dependência de peças físicas por um Sistema de Vigia via Código. O script agora monitora a área sem precisar de múltiplos sensores encavalados. "ONDE A MERDA ACONTECIA" Mudava codigo travava tudo.
+
+Detecção Quadrada (Perímetro AABB): Abandonamos o cálculo radial (círculo), que deixava pontos cegos nos cantos da arena. Implementamos uma detecção AABB (Axis-Aligned Bounding Box), garantindo que cada centímetro da arena quadrada seja monitorado com precisão matemática.
+
+ 2. Sincronização de Interface (HUD & UX)
+Resolvemos o problema de feedback visual para os jogadores e espectadores. ---------------Agora quam morre na arena de competição vai nace direto no lobby.-----------------
+
+Sistema de Status em Tempo Real: Criado o RemoteEvent AtualizarStatusTela. Ele faz a ponte entre o servidor e o cliente para gerenciar os estados:
+
+Arena Camp OFF: Arena vazia e disponível.
+
+Aguarde...: Jogadores detectados, preparando o início. Tela verda se tiver um player so na arena, " ela não fecha para o player sozinho" só se tiver 2 na arena ele inicia o fechamento individual "LOGICA MARAVILHOSA PQP Bug0 REgenerate SEM BUG MARAVILHA"
+
+Arena Camp ON: Partida rolando (texto verde para competidores).
+
+Correção de Atributos: Ajustamos a trava de segurança que impedia a tela de atualizar. Agora o servidor valida o atributo JaEntrou corretamente, permitindo que o LocalScript de interface mude as cores e textos na hora certa. Ou seja tirado o controle do roblox sobre os respaw, onde da bug no Regenerate.
+
+ 3. Sistema de Recompensa e Ranking
+Garantir que o esforço do jogador seja recompensado sem falhas.
+
+Premiação Automática: Implementado a função distribuirPremiosRanked. Ao final de cada partida, o vencedor recebe +100 pontos de "Camp".
+
+Persistência de Dados (DataStore): O script agora atualiza o RankingGlobal e os detalhes individuais por série (6º ao 9º ano) no exato momento da vitória, garantindo que nenhum ponto seja perdido por desconexão.
+
+ 4. Física e Sonoplastia da Lava
+Transformamos a queda na lava em um evento dinâmico e cômico.
+
+Sistema de Despedaçar: Criamos um script exclusivo que utiliza BreakJoints(). Ao tocar na lava, o personagem se desmonta fisicamente, separando membros e torso instantaneamente.
+
+Sorteio Aleatório de Áudio (Random SFX): Implementamos um "Pool de Áudios" com 8 sons icônicos (Chaves, Faustão, Socorro, etc). O sistema sorteia um ID diferente a cada queda, evitando a monotonia sonora.
+
+Correção de Spam no Console: Adicionamos Debounce (Travas) em todos os sensores de toque. Isso limpou o log do servidor e impediu que o mesmo som ou teleporte fosse acionado 50 vezes no mesmo segundo.
+
+ 5. Ambientação e NPCs
+Mago da Matemática: Iniciamos a configuração do NPC Mago. Resolvemos erros de hierarquia (Motor6D) e preparamos o terreno para gesticulações automáticas via AnimationEditor, transformando o NPC em um instrutor dinâmico para os alunos.
+
+ Especificações Técnicas Mantidas:
+Regra de Ouro: Nenhuma lógica foi simplificada; mantivemos a complexidade necessária para suportar todas as séries escolares simultaneamente.
+
+Estabilidade: O sistema de "Vigia" agora opera em task.spawn independente, garantindo que a detecção de jogadores não trave o ciclo de perguntas matemáticas.
+
+Ate que enfim próximo passa Extilização e melhoria Huuuuhuuuu
+
