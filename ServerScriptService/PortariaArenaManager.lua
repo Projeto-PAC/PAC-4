@@ -62,7 +62,7 @@ local function aoTocar(hit)
 			-- SÓ COMEÇA SE TIVER 2 OU MAIS
 			if #jogadoresNaArena >= 2 then
 				partidaAtiva = true
-				print("MÍNIMO ATINGIDO! Iniciando Atenção...")
+				print("MÍNIMO ATINGIDO! Atenção, Iniciando...")
 
 				-- Avisa a sua UI para mostrar "ATENÇÃO" e começar os 10s
 				eventoIniciar:FireAllClients("MOSTRAR_ATENCAO")

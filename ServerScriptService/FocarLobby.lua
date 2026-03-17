@@ -23,6 +23,7 @@ Players.PlayerAdded:Connect(function(player)
 			end
 		else
 			print("Player morreu/renasceu. Deixando o sistema de spawn do Roblox agir.")
+			
 		end
 	end)
 end)

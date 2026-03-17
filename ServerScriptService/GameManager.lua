@@ -16,6 +16,9 @@ _G.PodioFila = {}
 -- CONFIGURAÇÃO DOS CAMINHOS
 local modoCompetitivo = workspace:WaitForChild("ModosDeJogo"):WaitForChild("Competitivo")
 local sistemaArena = workspace:WaitForChild("SistemaArena") 
+
+sistemaArena:SetAttribute("PodeAtivarSensor2", false)
+
 local questionBoard = modoCompetitivo:WaitForChild("QuestionBoard")
 local timerBoard = modoCompetitivo:WaitForChild("TimerBoard")
 local answersFolder = modoCompetitivo:WaitForChild("Answers")
@@ -43,8 +46,60 @@ local CoresAleatorias = {
 	Color3.fromRGB(170, 85, 255), Color3.fromRGB(0, 255, 255)
 }
 
+-- ============================================================
+-- 🛑 SISTEMA DE VIGIA (AGORA CONTROLA A ATIVAÇÃO DO SENSOR 2)
+-- ============================================================
+local distanciaAproximacao = 95 -- Ajustado para cobrir a arena de 90x90
+sistemaArena:SetAttribute("PodeAtivarSensor2", false) -- Variável de controle de trava
+local detectados = {}
+
+task.spawn(function()
+	warn("!!! SISTEMA DE VIGIA DA ARENA ATIVADO (RAIO: 95) !!!") 
+	while true do
+		local contadorPlayersNaArena = 0
+		for _, p in pairs(players:GetPlayers()) do
+			local char = p.Character
+			if char and char:FindFirstChild("HumanoidRootPart") then
+				local pontoReferencia = sistemaArena:FindFirstChild("SensorArena2")
+				if pontoReferencia then
+					local dist = (char.HumanoidRootPart.Position - pontoReferencia.Position).Magnitude
+					if dist <= distanciaAproximacao then
+						contadorPlayersNaArena = contadorPlayersNaArena + 1
+						if not detectados[p.UserId] then
+							-- 🟢 AGORA VAI APARECER NO CONSOLE F9
+							warn("player " .. p.Name .. " detectado na arena | Dist: " .. math.floor(dist))
+							detectados[p.UserId] = true
+						end
+					else
+						detectados[p.UserId] = nil
+					end
+				end
+			end
+		end
+
+		-- Só controla sensor enquanto está esperando jogadores
+		if aguardandoJogadores then
+
+	if contadorPlayersNaArena >= 2 then
+		if not sistemaArena:GetAttribute("PodeAtivarSensor2") then
+			warn(">>> 2 JOGADORES DETECTADOS: SensorArena2 HABILITADO <<<")
+			sistemaArena:SetAttribute("PodeAtivarSensor2", true)
+		end
+	else
+		if sistemaArena:GetAttribute("PodeAtivarSensor2") then
+			warn(">>> JOGADOR SOZINHO: SensorArena2 BLOQUEADO <<<")
+			sistemaArena:SetAttribute("PodeAtivarSensor2", false)
+		end
+	end
+
+end
+
+		task.wait(0.25)
+	end
+end)
+
 -- ==========================================
--- 2. ESTILIZAÇÃO VISUAL (MANTIDA 100%)
+-- 2. ESTILIZAÇÃO VISUAL 
 -- ==========================================
 local function aplicarEstilo()
 	local uiStrokeT = timerLabel:FindFirstChild("UIStroke") or Instance.new("UIStroke", timerLabel)
@@ -72,7 +127,7 @@ end
 aplicarEstilo()
 
 -- ==========================================
--- 3. GERADORES (MANTIDOS 100%)
+-- 3. GERADORES 
 -- ==========================================
 local Geradores = {
 	[6] = { Facil = { tempo = 20, f = function() local a, b = math.random(50,200), math.random(30,100) return {txt=a.." + "..b, res=a+b} end }, Medio = { tempo = 23, f = function() local a, b = math.random(12,40), math.random(6,15) return {txt=a.." x "..b, res=a*b} end }, Dificil = { tempo = 40, f = function() local a, b = math.random(100,600)/10, math.random(50,250)/10 return {txt=a.." + "..b.." - 5.5", res=a+b-5.5} end } },
@@ -104,11 +159,16 @@ local function configurarSensores()
 		if sensor then
 			sensor.Touched:Connect(function(hit)
 				if not aguardandoJogadores then return end
+
+				-- 🛑 TRAVA DO USUÁRIO: Se o sensor for o 2 e não houver 2 players detectados, ele ignora o toque
+				if sensor.Name == "SensorArena2" and not podeAtivarSensor2 then
+					return
+				end
+
 				local p = players:GetPlayerFromCharacter(hit.Parent)
 				if p then
 					local stats = p:FindFirstChild("PlayerStats")
 					if stats and stats.JogoIniciado.Value == false then
-						-- Marca que este jogador específico entrou
 						p:SetAttribute("JaEntrou", true)
 						stats.JogoIniciado.Value = true
 						eventoIniciar:FireClient(p, "PRENDER_INDIVIDUAL") 
@@ -122,37 +182,22 @@ configurarSensores()
 
 local function distribuirPremiosRanked()
 	local vencedor = _G.PodioFila[#_G.PodioFila]
-
-	-- Verifica se o vencedor existe e se tem a pasta de acertos
 	if vencedor and vencedor:FindFirstChild("leaderstats") and vencedor:FindFirstChild("AcertosPorSerie") then 
 		local campValue = vencedor.leaderstats:FindFirstChild("Camp")
 		local acertos = vencedor.AcertosPorSerie
-
 		if campValue then
-			campValue.Value += 100 -- Dá os pontos no jogo
+			campValue.Value += 100 
 			local key = "Player_" .. vencedor.UserId
-
-			-- 1. ATUALIZA O TOTAL NO RANKING GLOBAL
+			pcall(function() RankingGlobal:SetAsync(key, vencedor.leaderstats.Total.Value) end)
 			pcall(function()
-				RankingGlobal:SetAsync(key, vencedor.leaderstats.Total.Value)
-			end)
-
-			-- 2. ATUALIZA A TABELA DE DETALHES (Resolve o erro do rankingStore)
-			pcall(function()
-				-- Busca o que já existe ou cria uma tabela nova se for a primeira vez
 				local detalhes = rankingStore:GetAsync(key) or {Serie6=0, Serie7=0, Serie8=0, Serie9=0, Camp=0}
-
-				-- Preenche com os valores atuais do jogador
 				detalhes.Serie6 = acertos.Serie6.Value
 				detalhes.Serie7 = acertos.Serie7.Value
 				detalhes.Serie8 = acertos.Serie8.Value
 				detalhes.Serie9 = acertos.Serie9.Value
 				detalhes.Camp = campValue.Value
-
-				-- Salva na gaveta de detalhes
 				rankingStore:SetAsync(key, detalhes)
 			end)
-
 			print("Sucesso! Ranking e Detalhes atualizados para " .. vencedor.Name)
 		end
 	end
@@ -186,24 +231,21 @@ local function executarRound(serie, dificuldade)
 			local lbl = b.SurfaceGui:FindFirstChildWhichIsA("TextLabel")
 			if lbl then 
 				local valFinal = ehCerto and corretaNum or (corretaNum + math.random(-30, 30))
-				lbl.Text = tostring(valFinal) 
-			end
+				if valFinal % 1 == 0 then lbl.Text = tostring(valFinal) else lbl.Text = string.format("%.2f", valFinal) end
+			end 
 		end
 	end
 
 	rodadaAtiva = true
 	for t = dados.tempo, 0, -1 do
-		timerLabel.Text = tostring(t)
-		task.wait(1)
+		timerLabel.Text = tostring(t); task.wait(1)
 		if #getJogadoresAtivos() <= 1 then break end
 	end
 	rodadaAtiva = false
 
 	for i = 1, totalBlocos do
 		local b = answersFolder:FindFirstChild("Answer"..i)
-		if b and not b:GetAttribute("Correta") then
-			b.Transparency = 1; b.CanCollide = false
-		end
+		if b and not b:GetAttribute("Correta") then b.Transparency = 1; b.CanCollide = false end
 	end
 	task.wait(4)
 
@@ -236,7 +278,6 @@ local function rodarCicloCompeticao()
 		eventoIniciar:FireAllClients("RESET_TOTAL") 
 		questionLabel.Text = "AGUARDANDO COMPETIDORES..."
 
-		-- Abre as portas
 		for _, porta in pairs(portas) do
 			porta.CanCollide = false; porta.Transparency = 0.8; porta.Color = Color3.fromRGB(0, 255, 0)
 		end
@@ -257,7 +298,6 @@ local function rodarCicloCompeticao()
 		local status = "CONTINUA"
 		local jogoAcabou = false
 
-		-- 🔹 PARTE 1: CICLO NORMAL (6º ao 9º Ano)
 		for _, dif in ipairs({"Facil", "Medio", "Dificil"}) do
 			for serie = 6, 9 do
 				status = executarRound(serie, dif)
@@ -266,23 +306,18 @@ local function rodarCicloCompeticao()
 			if jogoAcabou then break end
 		end
 
-		-- 🔹 PARTE 2: MORTE SÚBITA (O LOOP QUE VOCÊ QUERIA)
 		if not jogoAcabou and #getJogadoresAtivos() > 1 then
-			warn("⚠️ Entrando em Morte Súbita!")
 			while #getJogadoresAtivos() > 1 do
-				questionLabel.Text = "⚠️ MORTE SÚBITA! ⚠️"
-				task.wait(2)
+				questionLabel.Text = "⚠️ MORTE SÚBITA! ⚠️"; task.wait(2)
 				status = executarRound(9, "Dificil")
 				if status == "FIM" or status == "MORTE_TOTAL" then break end
 			end
 		end
 
-		-- FINALIZAÇÃO
 		local sobreviventes = getJogadoresAtivos()
 		if #sobreviventes == 1 then 
 			local vencedor = sobreviventes[1]
-			table.insert(_G.PodioFila, vencedor)
-			distribuirPremiosRanked() 
+			table.insert(_G.PodioFila, vencedor); distribuirPremiosRanked() 
 			questionLabel.Text = "🏆 VENCEDOR: " .. vencedor.Name
 		else 
 			questionLabel.Text = "💀 NINGUÉM SOBREVIVEU"
@@ -290,14 +325,10 @@ local function rodarCicloCompeticao()
 
 		task.wait(7)
 
-		-- 🧹 RESET DO CICLO (Fundamental para o próximo round)
 		for _, p in pairs(players:GetPlayers()) do
-			-- Limpa o atributo para o próximo round
 			p:SetAttribute("JaEntrou", false)
 			local stats = p:FindFirstChild("PlayerStats")
-			if stats and stats:FindFirstChild("JogoIniciado") then
-				stats.JogoIniciado.Value = false 
-			end
+			if stats and stats:FindFirstChild("JogoIniciado") then stats.JogoIniciado.Value = false end
 		end
 	end
 end
