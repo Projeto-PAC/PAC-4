@@ -239,7 +239,14 @@ for _, player in pairs(players:GetPlayers()) do gerenciarEntrada(player) end
 local function executarRound(serie, dificuldade)
 	local dados = Geradores[serie][dificuldade]
 	local q = dados.f()
-	questionLabel.Text = "["..dificuldade.."] "..q.txt.." ("..serie.."º Ano)"
+	local enumDificuldade = {
+		["facil"] = "Fácil",
+		["medio"] = "Médio",
+		["dificil"] = "Difícil"
+	}
+
+	local dificuldadeTexto = enumDificuldade[string.lower(dificuldade)] or dificuldade
+	questionLabel.Text = "["..dificuldadeTexto.."] "..q.txt.." ("..serie.."º Ano)"
 	local corretaNum = tonumber(q.res) or 0
 	local posicoesCertasNoGrupo = {}
 	for g = 0, 35 do posicoesCertasNoGrupo[g] = math.random(1, 9) end
@@ -252,6 +259,7 @@ local function executarRound(serie, dificuldade)
 			local ehCerto = (pos == posicoesCertasNoGrupo[grupo])
 			b:SetAttribute("Correta", ehCerto)
 			b.Transparency = 0; b.CanCollide = true; b.Material = Enum.Material.Neon
+			b:FindFirstChildOfClass("SurfaceGui").Enabled = true
 			local corBase = CoresAleatorias[math.random(1, #CoresAleatorias)]
 			b.Color = Color3.new(corBase.R * 0.4, corBase.G * 0.4, corBase.B * 0.4) 
 			local lbl = b.SurfaceGui:FindFirstChildWhichIsA("TextLabel")
@@ -271,7 +279,8 @@ local function executarRound(serie, dificuldade)
 
 	for i = 1, totalBlocos do
 		local b = answersFolder:FindFirstChild("Answer"..i)
-		if b and not b:GetAttribute("Correta") then b.Transparency = 1; b.CanCollide = false end
+		if b and not b:GetAttribute("Correta") then b.Transparency = 1; b.CanCollide = false; b:FindFirstChildOfClass("SurfaceGui").Enabled = false end
+		
 	end
 	task.wait(4)
 	local ativos = getJogadoresAtivos()
@@ -284,7 +293,7 @@ local function rodarCicloCompeticao()
 		_G.PodioFila = {}
 		for i = 1, totalBlocos do
 			local b = answersFolder:FindFirstChild("Answer"..i)
-			if b then b.Transparency = 0; b.CanCollide = true; b.Color = Color3.fromRGB(120, 120, 120); b.SurfaceGui.TextLabel.Text = "" end
+			if b then b.Transparency = 0; b.CanCollide = true; b.Color = Color3.fromRGB(200, 147, 87); b.Material = Enum.Material.Cobblestone;  b.SurfaceGui.TextLabel.Text = "" end
 		end
 		timerLabel.Text = ""; eventoIniciar:FireAllClients("RESET_TOTAL")
 		eventoStatusTela:FireAllClients("Arena Camp OFF")
