@@ -1,33 +1,31 @@
 local player = game.Players.LocalPlayer
-local leaderstats = player:WaitForChild("leaderstats")
-local acertos = player:WaitForChild("AcertosPorSerie")
+local botao = script.Parent
 
--- 1. Referências para os valores (Data)
-local s6 = acertos:WaitForChild("Serie6")
-local s7 = acertos:WaitForChild("Serie7")
-local s8 = acertos:WaitForChild("Serie8")
-local s9 = acertos:WaitForChild("Serie9")
-local camp = leaderstats:WaitForChild("Camp") -- O valor do Campeonato
+-- Ajustando o caminho para onde o seu Spawn realmente está
+-- Ele procura a pasta "Lobby" e depois o "SpawnLocation"
+local success, spawnPrincipal = pcall(function()
+	return workspace:WaitForChild("Lobby"):WaitForChild("Portais"):WaitForChild("SpawnLocation")
+end)
 
--- 2. Referência para a Label na sua tela
-local labell = script.Parent:WaitForChild("PontoAtual")
+botao.MouseButton1Click:Connect(function()
+	local character = player.Character
+	if character and character:FindFirstChild("HumanoidRootPart") then
 
---  FUNÇÃO DE ATUALIZAÇÃO INSTANTÂNEA
-local function atualizarUI()
-	-- Ele soma tudo na hora, sem depender do valor "Total" do servidor
-	local somaTotal = s6.Value + s7.Value + s8.Value + s9.Value + camp.Value
+		-- 1. Reseta o local de nascimento para o padrão
+		player.RespawnLocation = nil
 
-	print("Atualizando UI Local: " .. somaTotal)
-	labell.Text = "Parabéns: " .. somaTotal .. " Pontos"
-end
-
---  ESCUTADORES (Gatilhos)
--- Se QUALQUER uma das séries ou o campeonato mudar, ele atualiza o texto na hora
-s6.Changed:Connect(atualizarUI)
-s7.Changed:Connect(atualizarUI)
-s8.Changed:Connect(atualizarUI)
-s9.Changed:Connect(atualizarUI)
-camp.Changed:Connect(atualizarUI)
-
--- Primeira execução ao entrar ou abrir o menu
-atualizarUI()
+		-- 2. Teleporta o jogador
+		if success and spawnPrincipal then
+			character.HumanoidRootPart.CFrame = spawnPrincipal.CFrame + Vector3.new(0, 5, 0)
+			print("Teleportado para o Lobby com sucesso!")
+		else
+			-- Se der erro, tentamos procurar qualquer Spawn no mapa como plano B
+			local backupSpawn = workspace:FindFirstChildOfClass("SpawnLocation")
+			if backupSpawn then
+				character.HumanoidRootPart.CFrame = backupSpawn.CFrame + Vector3.new(0, 5, 0)
+			else
+				warn("Erro crítico: Não encontrei a pasta 'Lobby' nem nenhum SpawnLocation!")
+			end
+		end
+	end
+end)
