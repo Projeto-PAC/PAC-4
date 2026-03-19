@@ -139,3 +139,7 @@ Estabilidade: O sistema de "Vigia" agora opera em task.spawn independente, garan
 
 Ate que enfim próximo passa Extilização e melhoria Huuuuhuuuu
 
+
+Agenor Data 19/03/2026 Horário 23:59 LocalScript1.lua Sistema de ranket instalado\Fix WaitForChild("Portais") Retorno ao looby arena 6 a 9 e botão do Loby ok\Acresentado sons na lava Competição e series 6 à 9 Ano
+
+Atuialziado RankingServer para Selecionar os bots no painel Leaders Principal de Ranked 
