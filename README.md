@@ -146,10 +146,11 @@ Atuialziado RankingServer para Selecionar os bots no painel Leaders Principal de
 
 Dia 20/03/2026
 
-Adicionado sistema de tabuadas um desafio que antece o modo de nivelamento
+Adicionado sistema de tabuadas um desafio que antecede o modo de nivelamento
 
 Adicionado letreiros na arena
 
 Data: 24/03/2026 feat: Adicionado Script no portal chamado PORTALS para teletransporte para o arena de competição
 
       feat: Adicionado Sinalizadores nas postas dos castelos Arrow90 a 93 CoreSkyboxSystem.lua
+      ci: Adicionado a pasta Castelos onde organiza os castelos que armazena os portais e os Arrowns, para a arena de nivelamento de 6º ao 9º Ano e adionado 4 guardiões chamados de Antimáticos
