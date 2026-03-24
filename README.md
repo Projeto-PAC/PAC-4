@@ -149,3 +149,7 @@ Dia 20/03/2026
 Adicionado sistema de tabuadas um desafio que antece o modo de nivelamento
 
 Adicionado letreiros na arena
+
+Data: 24/03/2026 feat: Adicionado Script no portal chamado PORTALS para teletransporte para o arena de competição
+
+      feat: Adicionado Sinalizadores nas postas dos castelos Arrow90 a 93 CoreSkyboxSystem.lua
