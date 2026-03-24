@@ -1,12 +1,14 @@
 local pastaTaboada = script.Parent
 local displayPrincipal = pastaTaboada:WaitForChild("Answer0")
+local displayPrincipall = pastaTaboada:WaitForChild("Answer0.1")
+
 local blocoFinal = pastaTaboada:WaitForChild("Answer31")
 
 -- ==========================================================
 -- CONFIGURAÇÕES DE CONTROLE (Sua autoridade)
 -- ==========================================================
-local TABUADA_PARA_COMECAR = 5  -- Determine aqui onde o desafio inicia 
-local TEMPO_DE_TROCA = 60 
+local TABUADA_PARA_COMECAR = 9  -- Onde o desafio inicia 
+local TEMPO_DE_TROCA = 120  -- Segundos para a contagem
 local MATERIAL_FOSCO = Enum.Material.Plastic
 local TAMANHO_FONTE_MEGA = 135 
 
@@ -14,15 +16,20 @@ local TAMANHO_FONTE_MEGA = 135
 -- FUNÇÕES DE SUPORTE
 -- ==========================================================
 
--- Atualiza os textos com a Mega Fonte (135)
+-- Atualiza os textos (Ajustado para aceitar duas linhas)
 local function atualizarTexto(bloco, texto)
 	local gui = bloco:FindFirstChildOfClass("SurfaceGui")
 	if gui then
 		local label = gui:FindFirstChildOfClass("TextLabel")
 		if label then
 			label.Text = tostring(texto)
-			label.TextSize = TAMANHO_FONTE_MEGA
-			label.TextScaled = false 
+			-- Se o texto for grande (duas linhas), usamos TextScaled para não cortar
+			if string.find(tostring(texto), "\n") then
+				label.TextScaled = true
+			else
+				label.TextSize = TAMANHO_FONTE_MEGA
+				label.TextScaled = false 
+			end
 			label.Font = Enum.Font.GothamBold
 		end
 	end
@@ -49,31 +56,32 @@ end
 -- LOOP PRINCIPAL (LÓGICA DE ENGENHARIA)
 -- ==========================================================
 local function iniciarArenaPro()
-	-- Configura blocos de Início e Fim (Sólidos e Foscos)
+	-- Configura blocos de Início e Fim
 	displayPrincipal.Color = Color3.fromRGB(255, 255, 0)
 	displayPrincipal.Material = MATERIAL_FOSCO
 	displayPrincipal.CanCollide = true 
+
+	displayPrincipall.Color = Color3.fromRGB(255, 255, 0)
+	displayPrincipall.Material = MATERIAL_FOSCO
+	displayPrincipall.CanCollide = true
 
 	blocoFinal.Color = Color3.fromRGB(0, 255, 0)
 	blocoFinal.Material = MATERIAL_FOSCO
 	blocoFinal.CanCollide = true 
 	atualizarTexto(blocoFinal, "FINAL")
 
-	-- Inicializa o ponteiro na tabuada escolhida
 	local n = TABUADA_PARA_COMECAR
 
 	while true do
-		-- Validação de segurança: se o usuário colocar algo fora de 2-9, reseta para 2
 		if n < 2 or n > 9 then n = 2 end
 
-		atualizarTexto(displayPrincipal, "TABUADA: " .. n)
+		atualizarTexto(displayPrincipal, "DESTINO PARA ARENA 9º  TABUADA DE: " .. n)
 		warn("🏆 ARENA ATIVA: Iniciando sequência na Tabuada do " .. n)
 
-		-- Renderiza os 10 grupos (Answer1 ao 30)
+		-- Renderiza os 10 grupos
 		for questao = 1, 10 do
 			local resultadoCorreto = n * questao
 			local respostasErradas = gerarRespostasErradas(resultadoCorreto)
-
 			local sorteioGanhador = math.random(1, 3)
 			local indexBase = (questao - 1) * 3
 
@@ -86,13 +94,11 @@ local function iniciarArenaPro()
 
 				if bloco and bloco:IsA("BasePart") then
 					local valorNoBloco = listaValores[i]
-
 					atualizarTexto(bloco, valorNoBloco)
 					bloco.Material = MATERIAL_FOSCO
 					bloco.Color = gerarCorAleatoria()
 					bloco.Transparency = 0
 
-					-- Física: Só o correto é sólido
 					if valorNoBloco == resultadoCorreto then
 						bloco.CanCollide = true
 					else
@@ -102,14 +108,26 @@ local function iniciarArenaPro()
 			end
 		end
 
-		task.wait(TEMPO_DE_TROCA)
+		-- ==========================================================
+		-- TIMER REGRESSIVO DUPLO NO ANSWER0.1
+		-- ==========================================================
+		for segundosRestantes = TEMPO_DE_TROCA, 0, -1 do
+			-- A MÁGICA ESTÁ AQUI: "\n" pula a linha
+			local textoDuplo = "DESTINO PARA ARENA 9º" .. "" .. "\nTABUADA DE: " .. n .. " TEMPO: " .. segundosRestantes .. "s"
+			atualizarTexto(displayPrincipall, textoDuplo)
 
-		-- Lógica de Progressão Circular:
-		-- Incrementa o valor. Se chegar em 10, volta para o 2.
-		n = n + 1
-		if n > 9 then
-			n = 2
+			-- Alerta visual nos últimos 10 segundos
+			if segundosRestantes <= 10 then
+				displayPrincipall.Color = Color3.fromRGB(255, 0, 0)
+			else
+				displayPrincipall.Color = Color3.fromRGB(255, 255, 0)
+			end
+
+			task.wait(1)
 		end
+
+		n = n + 1
+		if n > 9 then n = 2 end
 	end
 end
 

@@ -159,3 +159,4 @@ Data: 24/03/2026 feat: Adicionado Script no portal chamado PORTALS para teletran
       ci: Criado Arquivo chamado de Lava dentro do looby e um script, estilizado o looby com desafio de tabuadas 
       Colcoado tela para video explicativo do jogo
       Estilizado Lobby com Arvores 
+      feat: Alterado as linha 78 e 116  Posicionamento para atender as diretrizes par as arenas
