@@ -156,3 +156,4 @@ Data: 24/03/2026 feat: Adicionado Script no portal chamado PORTALS para teletran
       ci: Adicionado a pasta Castelos onde organiza os castelos que armazena os portais e os Arrowns, para a arena de nivelamento de 6º ao 9º Ano e adionado 4 guardiões chamados de Antimáticos
       ci: Adicionado a portais novos PortalCustomizado 6Ano ao PortalCustomizado 9Ano com novos scripts dentro de Portais nos castelos
       ci: Apagado Pastas e Aquivos, Portal 6º ao 9º ano, que foram substituidos pelos novos portais
+      ci: Criado Arquivo chamado de Lava dentro do looby e um script, estilizado o looby com desafio de tabuadas 
