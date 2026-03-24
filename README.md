@@ -158,3 +158,4 @@ Data: 24/03/2026 feat: Adicionado Script no portal chamado PORTALS para teletran
       ci: Apagado Pastas e Aquivos, Portal 6º ao 9º ano, que foram substituidos pelos novos portais
       ci: Criado Arquivo chamado de Lava dentro do looby e um script, estilizado o looby com desafio de tabuadas 
       Colcoado tela para video explicativo do jogo
+      Estilizado Lobby com Arvores 
