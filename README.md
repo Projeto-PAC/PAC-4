@@ -151,3 +151,5 @@ ci: criado arquivo chamado Lava dentro do lobby e um script; estilizado o lobby 
 Colocado tela para vídeo explicativo do jogo.
 Estilizado lobby com árvores.
 feat: alteradas as linhas 78 e 116 (posicionamento) para atender as diretrizes para as arenas.
+
+data 29/03/2026 00:45H feat: Adicionado 4 magos no lobby com animações, falas, e Balão 
