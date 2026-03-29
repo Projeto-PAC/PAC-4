@@ -153,3 +153,4 @@ Estilizado lobby com árvores.
 feat: alteradas as linhas 78 e 116 (posicionamento) para atender as diretrizes para as arenas.
 
 data 29/03/2026 00:45H feat: Adicionado 4 magos no lobby com animações, falas, e Balão 
+                       perf: Unificação dos codigos Despedaçar.lua e Som.lua em um Script.lua melhorado scrip para morte grupal
