@@ -1,5 +1,5 @@
 -- ============================================================
---  GAMEMANAGER TOTAL: DETECÇÃO QUADRADA + RANKING + STATUS
+--  GAMEMANAGER (VERSÃO FINAL UNIFICADA - CORRIGIDA)
 -- ============================================================
 local workspace = game.Workspace
 local players = game.Players
@@ -15,15 +15,31 @@ local eventoIniciar = ReplicatedStorage:WaitForChild("IniciarArena")
 local eventoVencedor = ReplicatedStorage:WaitForChild("VencedorDefinido")
 local remoteEscolher = ReplicatedStorage:WaitForChild("EscolherSerie")
 local eventoStatusTela = ReplicatedStorage:WaitForChild("AtualizarStatusTela")
+local addTimeEv = ReplicatedStorage:WaitForChild("AddTimeEvent") -- FIO DA VANTAGEM
+
+-- Janela de consulta para as vantagens
+local checarVantagemRF = ReplicatedStorage:FindFirstChild("ChecarVantagem") or Instance.new("RemoteFunction")
+checarVantagemRF.Name = "ChecarVantagem"
+checarVantagemRF.Parent = ReplicatedStorage
+
+-- VARIÁVEL DO RELÓGIO (Necessária para a vantagem de tempo)
+local tempoRestante = 0 
 
 _G.PodioFila = {} 
+
+-------------------------------------------------
+-- ⏰ CONEXÃO DO BÔNUS DE TEMPO (VANTAGEM 3)
+-------------------------------------------------
+addTimeEv.Event:Connect(function(segundosExtras)
+	tempoRestante = tempoRestante + segundosExtras 
+	warn("⏰ BÔNUS COLETIVO! +10 segundos adicionados pelo AddTimeEvent.")
+end)
 
 -- 2. CONFIGURAÇÕES DE AMBIENTE E PERÍMETRO QUADRADO
 local modoCompetitivo = workspace:WaitForChild("ModosDeJogo"):WaitForChild("Competitivo")
 local sistemaArena = workspace:WaitForChild("SistemaArena") 
 local NOME_LOBBY_FIXO = "SpawnLocation"
 
--- CONFIGURAÇÃO DO QUADRADO (Ajuste esses valores para o tamanho real da arena)
 local LARGURA_X = 179.5  -- Tamanho total no eixo X
 local PROFUNDIDADE_Z = 179.5 -- Tamanho total no eixo Z
 local centroArena = sistemaArena:WaitForChild("CentroDaArena", 5)
@@ -117,7 +133,13 @@ local Geradores = {
 	[6] = { Facil = { tempo = 20, f = function() local a, b = math.random(50,200), math.random(30,100) return {txt=a.." + "..b, res=a+b} end }, Medio = { tempo = 23, f = function() local a, b = math.random(12,40), math.random(6,15) return {txt=a.." x "..b, res=a*b} end }, Dificil = { tempo = 40, f = function() local a, b = math.random(100,600)/10, math.random(50,250)/10 return {txt=a.." + "..b.." - 5.5", res=a+b-5.5} end } },
 	[7] = { Facil = { tempo = 20, f = function() local a, b = math.random(-30,30), math.random(-30,30) return {txt=a.." + ("..b..")", res=a+b} end }, Medio = { tempo = 30, f = function() local x = math.random(5,25); local c = math.random(10,50) return {txt="x + "..c.." = "..(x+c), res=x} end }, Dificil = { tempo = 40, f = function() local a, x, c = math.random(2,6), math.random(5,20), math.random(1,30) return {txt=a.."x + "..c.." = "..(a*x+c), res=x} end } },
 	[8] = { Facil = { tempo = 20, f = function() local n = math.random(2,16) return {txt="√"..(n*n), res=n} end }, Medio = { tempo = 30, f = function() local b, e = math.random(2,5), math.random(2,4) return {txt=b.."^"..e, res=math.pow(b,e)} end }, Dificil = { tempo = 40, f = function() local a, b = math.random(3,12), math.random(3,12) return {txt="√"..(a*a).." + √"..(b*b), res=a+b} end } },
-	[9] = { Facil = { tempo = 20, f = function() local x = math.random(1,18) return {txt="x² = "..(x*x), res=x} end }, Medio = { tempo = 30, f = function() local a = math.random(1,15) return {txt=a.." x 10³", res=a*1000} end }, Dificil = { tempo = 40, f = function() local x1, x2 = math.random(1,6), math.random(1,6); local b = -(x1 + x2); local c = x1 * x2 return {txt="x² ".. (b>=0 and "+ "..b or b) .."x + "..c.." = 0", res=x1} end } }
+	[9] = { Facil = { tempo = 20, f = function() local x = math.random(1,18) return {txt="x² = "..(x*x), res=x} end }, Medio = { tempo = 30, f = function() local a = math.random(1,15) return {txt=a.." x 10³", res=a*1000} end }, Dificil = { tempo = 40, f = function() 
+		local x1 = math.random(1,6)
+		local x2 = math.random(1,6)
+		local b = -(x1 + x2)
+		local c = x1 * x2 
+		return {txt="x² ".. (b>=0 and "+ "..b or b) .."x + "..c.." = 0", res=x1, avoid={x2}} 
+	end } }
 }
 
 -- ============================================================
@@ -134,12 +156,8 @@ task.spawn(function()
 				local char = p.Character
 				if char and char:FindFirstChild("HumanoidRootPart") then
 					local pPos = char.HumanoidRootPart.Position
-
-					-- LÓGICA DE DETECÇÃO QUADRADA (AABB)
-					-- Verifica se o player está dentro dos limites X e Z do quadrado
 					local dentroX = math.abs(pPos.X - centroPos.X) <= (LARGURA_X / 2)
 					local dentroZ = math.abs(pPos.Z - centroPos.Z) <= (PROFUNDIDADE_Z / 2)
-
 					if dentroX and dentroZ then
 						contadorNaArena = contadorNaArena + 1
 						table.insert(jogadoresEncontrados, p)
@@ -150,14 +168,12 @@ task.spawn(function()
 			if aguardandoJogadores then
 				if contadorNaArena >= 2 then
 					atualizarCoresPortas(Color3.fromRGB(255, 170, 0), 0.5, false)
-
 					if sistemaArena:GetAttribute("ArenaCamp") ~= "Aguarde" then
 						sistemaArena:SetAttribute("ArenaCamp", "Aguarde")
 						sistemaArena:SetAttribute("PodeAtivarSensor2", true)
 						eventoStatusTela:FireAllClients("Aguarde...")
 						warn(">>> STATUS: Aguarde (Quadrado Detectado)")
 					end
-
 					for _, p in pairs(jogadoresEncontrados) do
 						local stats = p:FindFirstChild("PlayerStats")
 						if stats and stats.JogoIniciado.Value == false then
@@ -169,7 +185,6 @@ task.spawn(function()
 				else
 					atualizarCoresPortas(Color3.fromRGB(0, 255, 0), 0.8, false)
 					questionLabel.Text = "AGUARDANDO JOGADORES NA ARENA...MÍNIMO (" .. contadorNaArena .. "/2)"
-
 					if sistemaArena:GetAttribute("ArenaCamp") ~= "Off" then
 						sistemaArena:SetAttribute("ArenaCamp", "Off")
 						sistemaArena:SetAttribute("PodeAtivarSensor2", false)
@@ -234,16 +249,12 @@ players.PlayerAdded:Connect(gerenciarEntrada)
 for _, player in pairs(players:GetPlayers()) do gerenciarEntrada(player) end
 
 -- ==========================================
--- 8. CICLO DE ROUND E COMPETIÇÃO
+-- 8. CICLO DE ROUND DINÂMICO (TRAVA DE SAÍDA REMOVIDA)
 -- ==========================================
 local function executarRound(serie, dificuldade)
 	local dados = Geradores[serie][dificuldade]
 	local q = dados.f()
-	local enumDificuldade = {
-		["facil"] = "Fácil",
-		["medio"] = "Médio",
-		["dificil"] = "Difícil"
-	}
+	local enumDificuldade = { ["facil"] = "Fácil", ["medio"] = "Médio", ["dificil"] = "Difícil" }
 
 	local dificuldadeTexto = enumDificuldade[string.lower(dificuldade)] or dificuldade
 	questionLabel.Text = "["..dificuldadeTexto.."] "..q.txt.." ("..serie.."º Ano)"
@@ -259,32 +270,71 @@ local function executarRound(serie, dificuldade)
 			local ehCerto = (pos == posicoesCertasNoGrupo[grupo])
 			b:SetAttribute("Correta", ehCerto)
 			b.Transparency = 0; b.CanCollide = true; b.Material = Enum.Material.Neon
-			b:FindFirstChildOfClass("SurfaceGui").Enabled = true
+			b.SurfaceGui.Enabled = true
 			local corBase = CoresAleatorias[math.random(1, #CoresAleatorias)]
 			b.Color = Color3.new(corBase.R * 0.4, corBase.G * 0.4, corBase.B * 0.4) 
+
 			local lbl = b.SurfaceGui:FindFirstChildWhichIsA("TextLabel")
 			if lbl then 
-				local valFinal = ehCerto and corretaNum or (corretaNum + math.random(-30, 30))
+				local valFinal
+				if ehCerto then
+					valFinal = corretaNum
+				else
+					local offset = math.random(-30, 30)
+					while offset == 0 or (q.avoid and table.find(q.avoid, corretaNum + offset)) do
+						offset = math.random(-30, 30)
+					end
+					valFinal = corretaNum + offset
+				end
 				lbl.Text = (valFinal % 1 == 0) and tostring(valFinal) or string.format("%.2f", valFinal)
 			end 
 		end
 	end
 
+	-- RELÓGIO DINÂMICO
+	tempoRestante = dados.tempo 
 	rodadaAtiva = true
-	for t = dados.tempo, 0, -1 do
-		timerLabel.Text = tostring(t); task.wait(1)
-		if #getJogadoresAtivos() <= 1 then break end
+
+	while tempoRestante > 0 do
+		timerLabel.Text = tostring(math.ceil(tempoRestante))
+		task.wait(1)
+		tempoRestante = tempoRestante - 1
+
+		-- CORREÇÃO: Removido o break que parava a partida se sobrar 1 player.
+		-- Agora o round continua até o fim mesmo que alguém dê quit.
+		if #getJogadoresAtivos() == 0 then break end -- Só para se todos saírem
 	end
 	rodadaAtiva = false
 
 	for i = 1, totalBlocos do
 		local b = answersFolder:FindFirstChild("Answer"..i)
-		if b and not b:GetAttribute("Correta") then b.Transparency = 1; b.CanCollide = false; b:FindFirstChildOfClass("SurfaceGui").Enabled = false end
-		
+		if b and not b:GetAttribute("Correta") then b.Transparency = 1; b.CanCollide = false; b.SurfaceGui.Enabled = false end
 	end
 	task.wait(4)
+
 	local ativos = getJogadoresAtivos()
 	if #ativos == 0 then return "MORTE_TOTAL" elseif #ativos == 1 then return "FIM" else return "CONTINUA" end
+end
+
+-- Janela de consulta para as vantagens
+checarVantagemRF.OnServerInvoke = function(player)
+	local statusArena = sistemaArena:GetAttribute("ArenaCamp")
+	if statusArena ~= "Arena Camp ON" then
+		return false, "Aguarde a competiÇÃo comeÇar!"
+	end
+	if not player:GetAttribute("JaEntrou") then
+		return false, "SÓ participantes podem usar vantagens!"
+	end
+	local char = player.Character
+	local hrp = char and char:FindFirstChild("HumanoidRootPart")
+	if hrp and centroArena then
+		local pPos = hrp.Position
+		local centroPos = centroArena.Position
+		local dentroX = math.abs(pPos.X - centroPos.X) <= (LARGURA_X / 2)
+		local dentroZ = math.abs(pPos.Z - centroPos.Z) <= (PROFUNDIDADE_Z / 2)
+		if dentroX and dentroZ then return true end
+	end
+	return false, "Saiu da Arena? Agora tem que esperar!"
 end
 
 local function rodarCicloCompeticao()
@@ -297,6 +347,7 @@ local function rodarCicloCompeticao()
 		end
 		timerLabel.Text = ""; eventoIniciar:FireAllClients("RESET_TOTAL")
 		eventoStatusTela:FireAllClients("Arena Camp OFF")
+		sistemaArena:SetAttribute("ArenaCamp", "Off")
 
 		repeat task.wait(1) until #getJogadoresAtivos() >= 2
 
@@ -310,6 +361,8 @@ local function rodarCicloCompeticao()
 		aguardandoJogadores = false 
 		atualizarCoresPortas(Color3.fromRGB(255, 0, 0), 0, true)
 		eventoIniciar:FireAllClients("FECHAR_ARENA_VERMELHO") 
+
+		sistemaArena:SetAttribute("ArenaCamp", "Arena Camp ON")
 		eventoStatusTela:FireAllClients("Arena Camp ON")
 
 		local status = "CONTINUA"
@@ -343,10 +396,12 @@ local function rodarCicloCompeticao()
 		task.wait(7)
 		for _, p in pairs(players:GetPlayers()) do
 			local s = p:FindFirstChild("PlayerStats")
-			if s and s:FindFirstChild("JogoIniciado") then s.JogoIniciado.Value = false end
+			if s then s.JogoIniciado.Value = false end
 			p:SetAttribute("JaEntrou", false)
+			p:SetAttribute("VantagensUsadas", 0) -- Reset do limite de usos
 		end
 		eventoStatusTela:FireAllClients("Arena Camp OFF")
+		sistemaArena:SetAttribute("ArenaCamp", "Off")
 	end
 end
 
@@ -363,4 +418,4 @@ for i = 1, totalBlocos do
 end
 
 task.spawn(rodarCicloCompeticao)
-print("✅ PERÍMETRO QUADRADO ATIVADO: OFF -> Aguarde -> ON.")
+print("✅ SISTEMA COMPLETO ATIVADO.")

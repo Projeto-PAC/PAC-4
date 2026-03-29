@@ -154,3 +154,10 @@ feat: alteradas as linhas 78 e 116 (posicionamento) para atender as diretrizes p
 
 data 29/03/2026 00:45H feat: Adicionado 4 magos no lobby com animações, falas, e Balão 
                        perf: Unificação dos codigos Despedaçar.lua e Som.lua em um Script.lua melhorado scrip para morte grupal
+                       feat: Novo recurço para o jogador, adicionado as vantagens,
+                       - Revelar (Revela resposta certas), 
+                       - Eliminação (Elimina, explode literamente algum bloco de respostas eradas e podendo matar o adversário)
+                       - Tempo (Acrescenta 10 segundos a mais no tempo)
+                       - Modificado o Gamemanenger.lua,
+                       - Criado o SistemaVantagem.lua, 
+                       - Criado em StarGui\VantageShopGui\LocalScrip.lua (Painel do Usuário)
