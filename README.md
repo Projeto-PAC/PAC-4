@@ -161,3 +161,5 @@ data 29/03/2026 00:45H feat: Adicionado 4 magos no lobby com animações, falas,
                        - Modificado o Gamemanenger.lua,
                        - Criado o SistemaVantagem.lua, 
                        - Criado em StarGui\VantageShopGui\LocalScrip.lua (Painel do Usuário)
+
+data 29/03/2026 Retirado bug do lobby na Arena                        

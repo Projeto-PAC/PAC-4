@@ -1,5 +1,5 @@
 -- ============================================================
---  GAMEMANAGER (VERSÃO FINAL UNIFICADA - CORRIGIDA)
+--  GAMEMANAGER (VERSÃO FINAL UNIFICADA - SISTEMA DE LOBBY)
 -- ============================================================
 local workspace = game.Workspace
 local players = game.Players
@@ -21,6 +21,10 @@ local addTimeEv = ReplicatedStorage:WaitForChild("AddTimeEvent") -- FIO DA VANTA
 local checarVantagemRF = ReplicatedStorage:FindFirstChild("ChecarVantagem") or Instance.new("RemoteFunction")
 checarVantagemRF.Name = "ChecarVantagem"
 checarVantagemRF.Parent = ReplicatedStorage
+
+-- Evento de Desistência (Lobby)
+local eventoLobby = ReplicatedStorage:FindFirstChild("IrParaLobby") or Instance.new("RemoteEvent", ReplicatedStorage)
+eventoLobby.Name = "IrParaLobby"
 
 -- VARIÁVEL DO RELÓGIO (Necessária para a vantagem de tempo)
 local tempoRestante = 0 
@@ -249,7 +253,34 @@ players.PlayerAdded:Connect(gerenciarEntrada)
 for _, player in pairs(players:GetPlayers()) do gerenciarEntrada(player) end
 
 -- ==========================================
--- 8. CICLO DE ROUND DINÂMICO (TRAVA DE SAÍDA REMOVIDA)
+-- 🚀 LÓGICA DO BOTÃO LOBBY (DESISTÊNCIA)
+-- ==========================================
+eventoLobby.OnServerEvent:Connect(function(player)
+	local char = player.Character
+	local hrp = char and char:FindFirstChild("HumanoidRootPart")
+	local stats = player:FindFirstChild("PlayerStats")
+	local lobbySpawn = workspace:FindFirstChild("LobbySpawn")
+
+	print("🚪 JOGADOR DESISTIU: " .. player.Name)
+
+	-- 1. DESLIGA O JOGADOR DA ARENA (Igual ao Died/Regenerate)
+	if stats then 
+		stats.JogoIniciado.Value = false 
+	end
+	player:SetAttribute("JaEntrou", false)
+	player:SetAttribute("VantagensUsadas", 0)
+
+	-- 2. TELEPORTA PARA O LOBBY
+	if hrp and lobbySpawn then
+		hrp.CFrame = lobbySpawn.CFrame + Vector3.new(0, 5, 0)
+	end
+
+	-- 3. LIBERA A CÂMERA E PORTAS PARA O CLIENTE
+	eventoIniciar:FireClient(player, "RESET_TOTAL")
+end)
+
+-- ==========================================
+-- 8. CICLO DE ROUND DINÂMICO
 -- ==========================================
 local function executarRound(serie, dificuldade)
 	local dados = Geradores[serie][dificuldade]
@@ -300,9 +331,8 @@ local function executarRound(serie, dificuldade)
 		task.wait(1)
 		tempoRestante = tempoRestante - 1
 
-		-- CORREÇÃO: Removido o break que parava a partida se sobrar 1 player.
-		-- Agora o round continua até o fim mesmo que alguém dê quit.
-		if #getJogadoresAtivos() == 0 then break end -- Só para se todos saírem
+		-- CORREÇÃO: Round continua até o fim mesmo se sobrar 1 player
+		if #getJogadoresAtivos() == 0 then break end 
 	end
 	rodadaAtiva = false
 
@@ -320,10 +350,10 @@ end
 checarVantagemRF.OnServerInvoke = function(player)
 	local statusArena = sistemaArena:GetAttribute("ArenaCamp")
 	if statusArena ~= "Arena Camp ON" then
-		return false, "Aguarde a competiÇÃo comeÇar!"
+		return false, "Aguarde a competição começar!"
 	end
 	if not player:GetAttribute("JaEntrou") then
-		return false, "SÓ participantes podem usar vantagens!"
+		return false, "Só participantes podem usar vantagens!"
 	end
 	local char = player.Character
 	local hrp = char and char:FindFirstChild("HumanoidRootPart")
@@ -398,7 +428,7 @@ local function rodarCicloCompeticao()
 			local s = p:FindFirstChild("PlayerStats")
 			if s then s.JogoIniciado.Value = false end
 			p:SetAttribute("JaEntrou", false)
-			p:SetAttribute("VantagensUsadas", 0) -- Reset do limite de usos
+			p:SetAttribute("VantagensUsadas", 0) 
 		end
 		eventoStatusTela:FireAllClients("Arena Camp OFF")
 		sistemaArena:SetAttribute("ArenaCamp", "Off")

@@ -9,6 +9,9 @@ local remoteEscolher = ReplicatedStorage:WaitForChild("EscolherSerie")
 -- NOVO EVENTO PARA O STATUS DE "ARENA CAMP ON/OFF"
 local eventoStatusTela = ReplicatedStorage:WaitForChild("AtualizarStatusTela")
 
+-- EVENTO PARA SAIR DA ARENA (LOBBY)
+local eventoLobby = ReplicatedStorage:WaitForChild("IrParaLobby")
+
 local gui = script.Parent
 local painel = gui:WaitForChild("Painel")
 local labelSerie = gui:WaitForChild("SerieAtual")
@@ -35,14 +38,10 @@ local function atualizarPortas(estado)
 		end
 		labelSerie.Text = "Arena Camp OFF"
 		labelSerie.TextColor3 = Color3.fromRGB(200, 96, 26)
+
+		-- GARANTE QUE O PAINEL E O BOTÃO FIQUEM VISÍVEIS
 		painel.Visible = true
 		botaoSair.Visible = true
-
-		-- Esconde botões de série para o próximo ciclo
-		painel.S6.Visible = false
-		painel.S7.Visible = false
-		painel.S8.Visible = false
-		painel.S9.Visible = false
 
 	elseif estado == "LARANJA" then
 		-- ESTADO: Jogador entrou, aguardando início (Pré-jogo)
@@ -51,11 +50,11 @@ local function atualizarPortas(estado)
 			porta.Transparency = 0.3
 			porta.Color = Color3.fromRGB(255, 165, 0) -- Laranja
 		end
-		-- O texto aqui será controlado pelo eventoStatusTela, 
-		-- mas mantemos o padrão caso o evento demore
 		labelSerie.Text = "Aguarde..."
 		labelSerie.TextColor3 = Color3.fromRGB(255, 165, 0)
-		botaoSair.Visible = false 
+
+		-- MANTÉM O BOTÃO VISÍVEL MESMO AGUARDANDO
+		botaoSair.Visible = true 
 
 	elseif estado == "VERMELHO" then
 		-- ESTADO: Partida em andamento (Bloqueio Total)
@@ -66,7 +65,10 @@ local function atualizarPortas(estado)
 		end
 		labelSerie.Text = "Arena Camp ON"
 		labelSerie.TextColor3 = Color3.fromRGB(0, 255, 127)
-		painel.Visible = false 
+
+		-- REGRA: NÃO ESCONDER O PAINEL DURANTE A COMPETIÇÃO
+		painel.Visible = true
+		botaoSair.Visible = true 
 	end
 end
 
@@ -79,8 +81,6 @@ end
 -- ESCUTA O STATUS ESPECÍFICO (ARENA CAMP ON/OFF)
 -- ==========================================
 eventoStatusTela.OnClientEvent:Connect(function(novoStatus)
-	-- Isso faz o texto mudar de "Aguarde..." para "Arena Camp ON" 
-	-- assim que o servidor detectar os 2 players
 	labelSerie.Text = novoStatus
 
 	if novoStatus == "Arena Camp ON" then
@@ -120,9 +120,18 @@ eventoIniciar.OnClientEvent:Connect(function(comando)
 end)
 
 -- ==========================================
--- CONFIGURAÇÃO DOS BOTÕES DA UI
+-- CONFIGURAÇÃO DO BOTÃO DE SAÍDA (LOBBY)
 -- ==========================================
-painel.S6.MouseButton1Click:Connect(function() selecionarSerie(6) end)
-painel.S7.MouseButton1Click:Connect(function() selecionarSerie(7) end)
-painel.S8.MouseButton1Click:Connect(function() selecionarSerie(8) end)
-painel.S9.MouseButton1Click:Connect(function() selecionarSerie(9) end)
+botaoSair.MouseButton1Click:Connect(function()
+	-- Dispara o evento para o servidor limpar nosso status da arena
+	eventoLobby:FireServer()
+	print("Tentando sair da arena e ir para o Lobby...")
+end)
+
+-- ==========================================
+-- CONFIGURAÇÃO DOS BOTÕES DA UI ( OPCIONAL )
+-- ==========================================
+-- painel.S6.MouseButton1Click:Connect(function() selecionarSerie(6) end)
+-- painel.S7.MouseButton1Click:Connect(function() selecionarSerie(7) end)
+-- painel.S8.MouseButton1Click:Connect(function() selecionarSerie(8) end)
+-- painel.S9.MouseButton1Click:Connect(function() selecionarSerie(9) end)
