@@ -4,6 +4,10 @@ local displayPrincipall = pastaTaboada:WaitForChild("Answer0.1")
 
 local blocoFinal = pastaTaboada:WaitForChild("Answer31")
 
+local replicatedStorage = game:GetService("ReplicatedStorage")
+local modeloPergunta = replicatedStorage:WaitForChild("PerguntasDesafio"):WaitForChild("BillboardGui")
+
+
 -- ==========================================================
 -- CONFIGURAÇÕES DE CONTROLE (Sua autoridade)
 -- ==========================================================
@@ -15,6 +19,44 @@ local TAMANHO_FONTE_MEGA = 135
 -- ==========================================================
 -- FUNÇÕES DE SUPORTE
 -- ==========================================================
+
+
+local function aplicarPerguntaNoBloco(bloco, n, questao)
+	local antigo = bloco:FindFirstChild("BillboardGui")
+	if antigo then
+		antigo:Destroy()
+	end
+
+	local clone = modeloPergunta:Clone()
+	clone.Parent = bloco
+
+	clone.Size = UDim2.new(0, 140, 0, 45)
+
+	-- esquerda + altura correta
+	clone.StudsOffset = Vector3.new(-(bloco.Size.X + 1), 2, 0)
+
+	clone.MaxDistance = 25
+
+	local label = clone:FindFirstChildOfClass("TextLabel")
+	if label then
+		label.Text = n .. " x " .. questao .. " = ?"
+
+		label.Size = UDim2.new(1, 0, 1, 0)
+
+		label.TextScaled = false
+		label.TextSize = 20
+
+		label.Font = Enum.Font.GothamBold
+		label.TextColor3 = Color3.fromRGB(255,255,255)
+		label.TextStrokeTransparency = 0
+
+		label.BackgroundTransparency = 0.25
+		label.BackgroundColor3 = Color3.fromRGB(20,20,20)
+
+		label.BorderSizePixel = 1
+		label.BorderColor3 = Color3.fromRGB(255,255,255)
+	end
+end
 
 -- Atualiza os textos (Ajustado para aceitar duas linhas)
 local function atualizarTexto(bloco, texto)
@@ -94,6 +136,9 @@ local function iniciarArenaPro()
 
 				if bloco and bloco:IsA("BasePart") then
 					local valorNoBloco = listaValores[i]
+					if i == 1 then
+						aplicarPerguntaNoBloco(bloco, n, questao)
+					end
 					atualizarTexto(bloco, valorNoBloco)
 					bloco.Material = MATERIAL_FOSCO
 					bloco.Color = gerarCorAleatoria()
@@ -113,7 +158,7 @@ local function iniciarArenaPro()
 		-- ==========================================================
 		for segundosRestantes = TEMPO_DE_TROCA, 0, -1 do
 			-- A MÁGICA ESTÁ AQUI: "\n" pula a linha
-			local textoDuplo = "DESTINO PARA ARENA 8º" .. "" .. "\nTABUADA DE: " .. n .. " TEMPO: " .. segundosRestantes .. "s"
+			local textoDuplo = "DESTINO PARA ARENA 8º ANO" .. "" .. "\nTABUADA DE: " .. n .. " TEMPO: " .. segundosRestantes .. "s"
 			atualizarTexto(displayPrincipall, textoDuplo)
 
 			-- Alerta visual nos últimos 10 segundos
