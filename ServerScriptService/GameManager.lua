@@ -131,19 +131,132 @@ end
 aplicarEstilo()
 
 -- ==========================================
--- 5. GERADORES DE MATEMÁTICA
+-- 5. GERADORES DE MATEMÁTICA OMNI (NUNCA REPETE)
 -- ==========================================
 local Geradores = {
-	[6] = { Facil = { tempo = 20, f = function() local a, b = math.random(50,200), math.random(30,100) return {txt=a.." + "..b, res=a+b} end }, Medio = { tempo = 23, f = function() local a, b = math.random(12,40), math.random(6,15) return {txt=a.." x "..b, res=a*b} end }, Dificil = { tempo = 40, f = function() local a, b = math.random(100,600)/10, math.random(50,250)/10 return {txt=a.." + "..b.." - 5.5", res=a+b-5.5} end } },
-	[7] = { Facil = { tempo = 20, f = function() local a, b = math.random(-30,30), math.random(-30,30) return {txt=a.." + ("..b..")", res=a+b} end }, Medio = { tempo = 30, f = function() local x = math.random(5,25); local c = math.random(10,50) return {txt="x + "..c.." = "..(x+c), res=x} end }, Dificil = { tempo = 40, f = function() local a, x, c = math.random(2,6), math.random(5,20), math.random(1,30) return {txt=a.."x + "..c.." = "..(a*x+c), res=x} end } },
-	[8] = { Facil = { tempo = 20, f = function() local n = math.random(2,16) return {txt="√"..(n*n), res=n} end }, Medio = { tempo = 30, f = function() local b, e = math.random(2,5), math.random(2,4) return {txt=b.."^"..e, res=math.pow(b,e)} end }, Dificil = { tempo = 40, f = function() local a, b = math.random(3,12), math.random(3,12) return {txt="√"..(a*a).." + √"..(b*b), res=a+b} end } },
-	[9] = { Facil = { tempo = 20, f = function() local x = math.random(1,18) return {txt="x² = "..(x*x), res=x} end }, Medio = { tempo = 30, f = function() local a = math.random(1,15) return {txt=a.." x 10³", res=a*1000} end }, Dificil = { tempo = 40, f = function() 
-		local x1 = math.random(1,6)
-		local x2 = math.random(1,6)
-		local b = -(x1 + x2)
-		local c = x1 * x2 
-		return {txt="x² ".. (b>=0 and "+ "..b or b) .."x + "..c.." = 0", res=x1, avoid={x2}} 
-	end } }
+	[6] = { -- 6º ANO: Decimais, Frações e Conversões
+		Facil = { 
+			tempo = 20, 
+			f = function() 
+				local a = math.random(10, 50) + (math.random(1, 9) / 10)
+				local b = math.random(5, 20) + (math.random(1, 9) / 10)
+				return {txt=string.format("%.1f + %.1f", a, b), res=a+b} 
+			end 
+		}, 
+		Medio = { 
+			tempo = 30, 
+			f = function() 
+				local num = math.random(2, 5)
+				local den = math.random(6, 12)
+				local mult = den * math.random(2, 5)
+				return {txt="Fração: "..num.."/"..den.." de "..mult, res=(mult/den)*num} 
+			end 
+		}, 
+		Dificil = { 
+			tempo = 40, 
+			f = function() 
+				local km = math.random(2, 15)
+				return {txt="Conversão: "..km.."km em metros", res=km * 1000} 
+			end 
+		} 
+	},
+	[7] = { -- 7º ANO: Negativos, Porcentagem e Equação 1º Grau
+		Facil = { 
+			tempo = 20, 
+			f = function() 
+				local a, b = math.random(-50, -10), math.random(20, 60)
+				return {txt=a.." + ("..b..")", res=a+b} 
+			end 
+		}, 
+		Medio = { 
+			tempo = 30, 
+			f = function() 
+				local p = math.random(1, 9) * 10
+				local v = math.random(10, 50) * 10
+				return {txt=p.."% de "..v, res=(p/100)*v} 
+			end 
+		}, 
+		Dificil = { 
+			tempo = 45, 
+			f = function() 
+				local a = math.random(2, 5)
+				local x = math.random(2, 10)
+				local b = math.random(5, 20)
+				local resultado = (a * x) + b
+				return {txt="Equação: "..a.."x + "..b.." = "..resultado..". Valor de x?", res=x} 
+			end 
+		} 
+	},
+	[8] = { -- 8º ANO: Potência, Plano Cartesiano e Conjuntos
+		Facil = { 
+			tempo = 25, 
+			f = function() 
+				local base = math.random(2, 5)
+				local exp = math.random(2, 4)
+				return {txt="Potência: "..base.."^"..exp, res=math.pow(base, exp)} 
+			end 
+		}, 
+		Medio = { 
+			tempo = 35, 
+			f = function() 
+				local x, y = math.random(-10, 10), math.random(-10, 10)
+				local pergunta = math.random(1, 2)
+				if pergunta == 1 then
+					return {txt="Ponto ("..x..","..y.."). Qual o valor da Abscissa (x)?", res=x}
+				else
+					return {txt="Ponto ("..x..","..y.."). Qual o valor da Ordenada (y)?", res=y}
+				end
+			end 
+		}, 
+		Dificil = { 
+			tempo = 45, 
+			f = function() 
+				-- Conjuntos: União/Intersecção (Representado por contagem)
+				local nA = math.random(5, 10)
+				local nB = math.random(5, 10)
+				local inter = math.random(1, 4)
+				return {txt="Conjuntos: A="..nA..", B="..nB..", Intersecção="..inter..". Total A ∪ B?", res=(nA+nB)-inter} 
+			end 
+		} 
+	},
+	[9] = { -- 9º ANO: 2º Grau, Log, Trigonometria (Catetos/Hipotenusa)
+		Facil = { 
+			tempo = 30, 
+			f = function() 
+				local b = math.random(3, 6)
+				local c = math.random(7, 10)
+				-- Pitágoras simplificado (arredondado para inteiro se necessário ou usando trios pitagóricos)
+				return {txt="Triângulo: Catetos 3 e 4. Qual a Hipotenusa?", res=5} 
+			end 
+		}, 
+		Medio = { 
+			tempo = 45, 
+			f = function() 
+				-- Equação 2º grau (Soma e Produto)
+				local x1 = math.random(1, 4)
+				local x2 = math.random(5, 9)
+				local b = -(x1 + x2)
+				local c = x1 * x2
+				return {txt="Função: x² "..(b>=0 and "+ "..b or b).."x + "..c.." = 0. Menor raiz?", res=x1, avoid={x2}} 
+			end 
+		}, 
+		Dificil = { 
+			tempo = 60, 
+			f = function() 
+				local modo = math.random(1, 2)
+				if modo == 1 then
+					-- Logaritmo
+					local base = math.random(2, 3)
+					local exp = math.random(2, 5)
+					return {txt="Logaritmo: log"..base.."("..math.pow(base, exp)..")", res=exp}
+				else
+					-- Trigonometria SOHCAHTOA
+					local hip = math.random(10, 30) * 2
+					return {txt="Seno 30° (0.5) com Hipotenusa "..hip..". Cateto Oposto?", res=hip * 0.5}
+				end
+			end 
+		} 
+	}
 }
 
 -- ============================================================
@@ -350,7 +463,7 @@ end
 checarVantagemRF.OnServerInvoke = function(player)
 	local statusArena = sistemaArena:GetAttribute("ArenaCamp")
 	if statusArena ~= "Arena Camp ON" then
-		return false, "Aguarde a competição começar!"
+		return false, "Aguarde a competiÇÃo comeÇar!"
 	end
 	if not player:GetAttribute("JaEntrou") then
 		return false, "Só participantes podem usar vantagens!"
@@ -398,6 +511,7 @@ local function rodarCicloCompeticao()
 		local status = "CONTINUA"
 		local jogoAcabou = false
 		for _, dif in ipairs({"Facil", "Medio", "Dificil"}) do
+			centroArena.StatusCompeticao.Value = dif ----------------------------Escuta para defenir o som do narrador das fazer Facíl, médio e dificil
 			for serie = 6, 9 do
 				status = executarRound(serie, dif)
 				if status ~= "CONTINUA" then jogoAcabou = true break end
@@ -406,6 +520,7 @@ local function rodarCicloCompeticao()
 		end
 
 		if not jogoAcabou and #getJogadoresAtivos() > 1 then
+			centroArena.StatusCompeticao.Value = "MorteSubita" ----------------------------Escuta para defenir o som do narrador da Morte Subita
 			while #getJogadoresAtivos() > 1 do
 				questionLabel.Text = "⚠️ MORTE SÚBITA! ⚠️"; task.wait(2)
 				status = executarRound(9, "Dificil")
@@ -417,13 +532,16 @@ local function rodarCicloCompeticao()
 		if #sobreviventes == 1 then 
 			local ganhador = sobreviventes[1]
 			questionLabel.Text = "🏆 VENCEDOR: " .. ganhador.Name
+			centroArena.StatusCompeticao.Value = "Vencedor"------------------------------------Escuta para defenir o som do narrador do Vencedor
 			table.insert(_G.PodioFila, ganhador)
 			distribuirPremiosRanked()
 		else 
 			questionLabel.Text = "💀 NINGUÉM SOBREVIVEU"
+			centroArena.StatusCompeticao.Value = "Ninguem" ------------------------------------Escuta para defenir o som do narrador de Ningue Sobreviveu
 		end
 
 		task.wait(7)
+		centroArena.StatusCompeticao.Value = ""  ------------------------------------------Codigo de Limpeza 
 		for _, p in pairs(players:GetPlayers()) do
 			local s = p:FindFirstChild("PlayerStats")
 			if s then s.JogoIniciado.Value = false end
